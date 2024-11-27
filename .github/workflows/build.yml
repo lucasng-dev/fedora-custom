@@ -1,0 +1,90 @@
+---
+name: Build Fedora
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 6"
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+
+env:
+  IMAGE_SOURCE: quay.io/fedora/fedora-silverblue
+  IMAGE_NAME: ${{ github.event.repository.name }}
+  IMAGE_DESCRIPTION: Fedora Silverblue (custom build)
+  IMAGE_VERSION_MAJOR: 41
+  IMAGE_VERSION: "" # will be set by the workflow
+  IMAGE_TAGS: "" # will be set by the workflow
+
+jobs:
+  build:
+    name: Build and push image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Git sources
+        uses: actions/checkout@v4
+
+      - name: Pull OCI source image
+        uses: Wandalen/wretry.action/main@v3
+        with:
+          attempt_delay: 15000
+          attempt_limit: 3
+          command: podman pull '${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}'
+
+      - name: Set OCI image version and tags
+        shell: bash
+        run: |
+          set -eu -o pipefail
+          IMAGE_VERSION=$(podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}')
+          if [[ -z "$IMAGE_VERSION" ]]; then
+            echo "Failed to get version from upstream image!" 1>&2 && exit 1
+          fi
+          echo "IMAGE_VERSION=$IMAGE_VERSION" | tee -a $GITHUB_ENV
+          if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
+            IMAGE_TAGS="$IMAGE_VERSION_MAJOR.build-${{ github.run_number }}.pr-${{ github.event.number }}"
+          else
+            IMAGE_TAGS="$IMAGE_VERSION $IMAGE_VERSION_MAJOR.build-${{ github.run_number }} $IMAGE_VERSION_MAJOR latest"
+          fi
+          echo "IMAGE_TAGS=$IMAGE_TAGS" | tee -a $GITHUB_ENV
+
+      - name: Build OCI image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          containerfiles: ./Containerfile
+          image: ${{ env.IMAGE_NAME }}
+          oci: true
+          build-args: |
+            IMAGE_SOURCE=${{ env.IMAGE_SOURCE }}
+            IMAGE_TAG=${{ env.IMAGE_VERSION_MAJOR }}
+          tags: ${{ env.IMAGE_TAGS }}
+          labels: |
+            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
+            org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
+            org.opencontainers.image.version=${{ env.IMAGE_VERSION }}
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
+
+      - name: Push OCI image
+        uses: Wandalen/wretry.action/main@v3
+        with:
+          action: redhat-actions/push-to-registry@v2
+          attempt_delay: 15000
+          attempt_limit: 3
+          with: |
+            image: ${{ env.IMAGE_NAME }}
+            tags: ${{ env.IMAGE_TAGS }}
+            registry: ghcr.io/${{ github.repository_owner }}
+            username: ${{ github.actor }}
+            password: ${{ github.token }}

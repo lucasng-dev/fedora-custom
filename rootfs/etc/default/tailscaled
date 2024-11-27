@@ -1,0 +1,4 @@
+PORT="0"
+FLAGS="--no-logs-no-support"
+TS_NO_LOGS_NO_SUPPORT="true"
+TS_FORCE_NOISE_443="true"
