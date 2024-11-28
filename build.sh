@@ -10,7 +10,7 @@ ln -srfT /usr/lib/alternatives /var/lib/alternatives
 
 # remove rpm packages
 dnf remove -y \
-	gnome-software-fedora-langpacks firefox
+	gnome-software-fedora-langpacks firefox gnome-terminal ptyxis
 
 # install rpm packages
 dnf install -y --enablerepo=rpmfusion-nonfree-steam \
@@ -25,7 +25,7 @@ dnf install -y --enablerepo=rpmfusion-nonfree-steam \
 	git{,-lfs,-delta} gh direnv jq yq \
 	distrobox podman{,-compose,-docker,-tui} \
 	btrfs-assistant gparted parted \
-	cups-pdf gnome-themes-extra gnome-tweaks tilix \
+	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} \
 	openrgb steam-devices \
 	virt-manager \
 	onedrive python3-{pyside6,requests} \
@@ -39,12 +39,20 @@ rm -f /etc/yum.repos.d/{tailscale,1password}.repo
 sed -Ei '/AutomaticUpdatePolicy=/c\AutomaticUpdatePolicy=stage' /etc/rpm-ostreed.conf
 systemctl enable rpm-ostreed-automatic.timer
 
+# configure flatpak repos
+systemctl disable flatpak-add-fedora-repos.service
+wget -q -O /etc/flatpak/remotes.d/flathub.flatpakrepo https://flathub.org/repo/flathub.flatpakrepo
+
 # enable flatpak automatic updates (systemd units from ublue)
 git clone --branch=main --depth=1 https://github.com/ublue-os/config.git ublue-config
 cp ublue-config/files/usr/lib/systemd/system/flatpak-system-update.{service,timer} /usr/lib/systemd/system/
 cp ublue-config/files/usr/lib/systemd/user/flatpak-user-update.{service,timer} /usr/lib/systemd/user/
 systemctl enable flatpak-system-update.timer
 systemctl --global enable flatpak-user-update.timer
+
+# disable gnome-software update service (already managed by previous services)
+grep -El 'gapplication-service' /etc/xdg/autostart/* |
+	xargs -I{} sed -Ei 's/(^Exec=.*$)/\1\nX-GNOME-Autostart-enabled=false/g' {}
 
 # enable podman services
 sed -Ei 's/(--filter)/--filter restart-policy=unless-stopped \1/g' /usr/lib/systemd/system/podman-restart.service
