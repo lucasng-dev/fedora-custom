@@ -8,6 +8,6 @@ FROM ${IMAGE_SOURCE}:${IMAGE_TAG}
 RUN --mount=type=bind,from=sources,src=/,dst=/sources \
     --mount=type=tmpfs,dst=/var \
     --mount=type=tmpfs,dst=/tmp \
-    cp -r /sources/rootfs/* / && \
+    cp -a /sources/rootfs/* / && \
     /sources/build.sh && \
     ostree container commit
