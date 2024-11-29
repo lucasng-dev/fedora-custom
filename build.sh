@@ -47,6 +47,8 @@ wget -q -O /etc/flatpak/remotes.d/flathub.flatpakrepo https://flathub.org/repo/f
 git clone --branch=main --depth=1 https://github.com/ublue-os/config.git ublue-config
 cp ublue-config/files/usr/lib/systemd/system/flatpak-system-update.{service,timer} /usr/lib/systemd/system/
 cp ublue-config/files/usr/lib/systemd/user/flatpak-user-update.{service,timer} /usr/lib/systemd/user/
+sed -Ei 's|[^;&]*\bflatpak\b[^;&]+\brepair\b[^;&]*| /usr/bin/true |g' \
+	/usr/lib/systemd/system/flatpak-system-update.service /usr/lib/systemd/user/flatpak-user-update.service
 systemctl enable flatpak-system-update.timer
 systemctl --global enable flatpak-user-update.timer
 
