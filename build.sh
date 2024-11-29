@@ -105,6 +105,7 @@ mise --version
 # install fira-code nerd font from github releases
 wget -q -O FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
 unzip -q -o -d /usr/share/fonts/fira-code-nf-fonts FiraCode.zip
+fc-cache -f
 
 # install onedrive-gui from github sources
 wget -q -O- https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
