@@ -54,7 +54,7 @@ systemctl enable flatpak-system-update.timer
 systemctl --global enable flatpak-user-update.timer
 
 # disable gnome-software update service (already managed by previous services)
-grep -ERl '^Exec=.*\bgnome-software\b.*\s--gapplication-service\b' \
+grep -ERl '\bgnome-software\b.*\s--gapplication-service\b' \
 	/etc/xdg/autostart /usr/share/dbus-1/services | xargs rm -f
 
 # enable podman services
