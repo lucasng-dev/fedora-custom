@@ -4,7 +4,7 @@ name: Build Fedora
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 6 * * 6"
+    - cron: "0 12 1 * *"
   push:
     branches:
       - main
@@ -67,8 +67,7 @@ jobs:
           image: ${{ env.IMAGE_NAME }}
           oci: true
           build-args: |
-            IMAGE_SOURCE=${{ env.IMAGE_SOURCE }}
-            IMAGE_TAG=${{ env.IMAGE_VERSION_MAJOR }}
+            BASE_IMAGE=${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}
           tags: ${{ env.IMAGE_TAGS }}
           labels: |
             org.opencontainers.image.title=${{ env.IMAGE_NAME }}
