@@ -54,8 +54,8 @@ systemctl enable flatpak-system-update.timer
 systemctl --global enable flatpak-user-update.timer
 
 # disable gnome-software update service (already managed by previous services)
-grep -El '^Exec=.*\bgnome-software\b.*\s--gapplication-service\b' \
-	/etc/xdg/autostart/*.desktop /usr/share/dbus-1/services/*.service | xargs -I'{}' rm -f '{}'
+grep -ERl '^Exec=.*\bgnome-software\b.*\s--gapplication-service\b' \
+	/etc/xdg/autostart /usr/share/dbus-1/services | xargs rm -f
 
 # enable podman services
 sed -Ei 's/(--filter)/--filter restart-policy=unless-stopped \1/g' /usr/lib/systemd/system/podman-restart.service
@@ -98,7 +98,7 @@ starship --version
 
 # install mise from github releases
 wget -q -O- https://api.github.com/repos/jdx/mise/releases/latest | jq -r '.assets[].browser_download_url' |
-	grep -E '/mise-.*?-linux-x64$' | head -n 1 | xargs -I'{}' wget -q -O /usr/bin/mise '{}'
+	grep -E '/mise-.*?-linux-x64$' | head -n 1 | xargs wget -q -O /usr/bin/mise
 chmod +x /usr/bin/mise
 mise --version
 
@@ -110,6 +110,6 @@ fc-cache -f
 
 # install onedrive-gui from github sources
 wget -q -O- https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
-	xargs -I'{}' wget -q -O OneDriveGUI.tar.gz '{}'
+	xargs wget -q -O OneDriveGUI.tar.gz
 tar -xzf OneDriveGUI.tar.gz
 mv ./*-OneDriveGUI-*/src /usr/lib/OneDriveGUI
