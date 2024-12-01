@@ -27,7 +27,6 @@ dnf install -y --enablerepo=rpmfusion-nonfree-steam \
 	btrfs-assistant gparted parted \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} \
 	openrgb steam-devices \
-	virt-manager \
 	onedrive python3-{pyside6,requests} \
 	tailscale 1password-cli \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
@@ -66,9 +65,6 @@ systemctl --global enable podman-restart.service
 
 # disable sshd service by default
 systemctl disable sshd.service
-
-# enable virt-manager service
-systemctl enable libvirtd.service
 
 # enable tailscale service
 systemctl enable tailscaled.service
