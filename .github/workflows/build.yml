@@ -67,18 +67,17 @@ jobs:
           attempt_delay: 15000
           attempt_limit: 2
           with: |
-            with:
-              containerfiles: ./Containerfile
-              image: ${{ env.IMAGE_NAME }}
-              oci: true
-              build-args: |
-                BASE_IMAGE=${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}
-              tags: ${{ env.IMAGE_TAGS }}
-              labels: |
-                org.opencontainers.image.title=${{ env.IMAGE_NAME }}
-                org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
-                org.opencontainers.image.version=${{ env.IMAGE_VERSION }}
-                io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
+            containerfiles: ./Containerfile
+            image: ${{ env.IMAGE_NAME }}
+            oci: true
+            build-args: |
+              BASE_IMAGE=${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}
+            tags: ${{ env.IMAGE_TAGS }}
+            labels: |
+              org.opencontainers.image.title=${{ env.IMAGE_NAME }}
+              org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
+              org.opencontainers.image.version=${{ env.IMAGE_VERSION }}
+              io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
 
       - name: Push OCI image
         uses: Wandalen/wretry.action/main@v3
