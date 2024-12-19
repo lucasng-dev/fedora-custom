@@ -2,6 +2,10 @@
 set -eux -o pipefail
 cd "$(mktemp -d)"
 
+# system info
+rpm -qa | grep -E '^kernel-' | sort
+cat /etc/os-release
+
 # build-time '/var'
 mkdir -p /var/{cache,lib,log,tmp,home,roothome}
 # persistent '/var'
@@ -12,8 +16,32 @@ mkdir -p /usr/share/rpm && ln -srfT /usr/share/rpm /var/lib/rpm
 mkdir -p /usr/lib/opt && ln -srfT /usr/lib/opt /var/opt
 mkdir -p /usr/lib/usrlocal && ln -srfT /usr/lib/usrlocal /var/usrlocal
 
+# rpm fusion repos - https://rpmfusion.org/Configuration
+dnf install -y \
+	"https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
+	"https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+dnf config-manager setopt fedora-cisco-openh264.enabled=1
+
+# rpm fusion multimedia - https://rpmfusion.org/Howto/Multimedia
+dnf swap -y ffmpeg-free ffmpeg --allowerasing
+for cmd in install update; do
+	dnf "$cmd" -y @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
+done
+dnf install -y intel-media-driver
+dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
+dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
+dnf swap -y mesa-va-drivers.i686 mesa-va-drivers-freeworld.i686
+dnf swap -y mesa-vdpau-drivers.i686 mesa-vdpau-drivers-freeworld.i686
+dnf install -y rpmfusion-free-release-tainted
+dnf install -y libdvdcss
+dnf install -y rpmfusion-nonfree-release-tainted
+dnf --repo=rpmfusion-nonfree-tainted install -y "*-firmware"
+
+# rpm external repos
+dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+
 # rpm packages
-dnf install -y --enablerepo=rpmfusion-nonfree-steam \
+dnf install -y \
 	langpacks-{en,pt} \
 	zsh eza bat micro mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
@@ -33,7 +61,6 @@ dnf install -y --enablerepo=rpmfusion-nonfree-steam \
 dnf remove -y \
 	gnome-software-fedora-langpacks firefox gnome-terminal ptyxis
 dnf autoremove -y
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{tailscale,1password}.repo
 
 # ublue config files
 git clone --depth=1 https://github.com/ublue-os/config.git ublue-config
