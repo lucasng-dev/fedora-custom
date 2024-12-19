@@ -54,7 +54,7 @@ dnf install -y \
 	tailscale 1password-cli \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 dnf remove -y \
-	gnome-software-fedora-langpacks firefox gnome-terminal ptyxis
+	gnome-software-fedora-langpacks gnome-terminal ptyxis
 dnf autoremove -y
 
 # disable third-party rpm repos after install
