@@ -16,13 +16,13 @@ mkdir -p /usr/share/rpm && ln -srfT /usr/share/rpm /var/lib/rpm
 mkdir -p /usr/lib/opt && ln -srfT /usr/lib/opt /var/opt
 mkdir -p /usr/lib/usrlocal && ln -srfT /usr/lib/usrlocal /var/usrlocal
 
-# rpm fusion repos - https://rpmfusion.org/Configuration
+# enable rpm fusion repos: https://rpmfusion.org/Configuration
 dnf install -y \
 	"https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
 	"https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
 dnf config-manager setopt fedora-cisco-openh264.enabled=1
 
-# rpm fusion multimedia - https://rpmfusion.org/Howto/Multimedia
+# install rpm fusion multimedia support: https://rpmfusion.org/Howto/Multimedia
 dnf swap -y ffmpeg-free ffmpeg --allowerasing
 for cmd in install update; do
 	dnf "$cmd" -y @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
@@ -30,11 +30,12 @@ done
 dnf install -y intel-media-driver
 dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
 dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
+dnf install -y rpmfusion-free-release-tainted
+dnf install -y libdvdcss
+dnf install -y rpmfusion-nonfree-release-tainted
+dnf --repo=rpmfusion-nonfree-tainted install -y "*-firmware"
 
-# rpm external repos
-dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-
-# rpm packages
+# install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
 	zsh eza bat micro mc \
@@ -42,12 +43,12 @@ dnf install -y \
 	btop htop nvtop inxi lm_sensors xclip xsel wl-clipboard \
 	openssl curl wget net-tools telnet traceroute mtr bind-utils mtr nmap netcat whois \
 	iperf3 speedtest-cli wireguard-tools firewall-config syncthing \
-	p7zip{,-plugins} zip unzip unrar unar cabextract \
+	p7zip{,-plugins} zip unzip unrar unar sqlite \
 	cmatrix lolcat fastfetch onefetch \
 	git{,-lfs,-delta} gh direnv jq yq \
 	distrobox podman{,-compose,-docker,-tui} \
 	gparted parted btrbk duperemove \
-	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} \
+	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
 	openrgb steam-devices \
 	onedrive python3-{requests,pyside6} \
 	tailscale 1password-cli \
@@ -56,7 +57,10 @@ dnf remove -y \
 	gnome-software-fedora-langpacks firefox gnome-terminal ptyxis
 dnf autoremove -y
 
-# ublue config files
+# disable third-party rpm repos after install
+sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{1password,tailscale}.repo
+
+# install ublue config files
 git clone --depth=1 https://github.com/ublue-os/config.git ublue-config
 cp -a ublue-config/files/etc/rpm-ostreed.conf /etc/
 cp -a ublue-config/files/etc/systemd/system/rpm-ostreed-automatic.* /etc/systemd/system/
