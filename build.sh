@@ -30,12 +30,6 @@ done
 dnf install -y intel-media-driver
 dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
 dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
-dnf swap -y mesa-va-drivers.i686 mesa-va-drivers-freeworld.i686
-dnf swap -y mesa-vdpau-drivers.i686 mesa-vdpau-drivers-freeworld.i686
-dnf install -y rpmfusion-free-release-tainted
-dnf install -y libdvdcss
-dnf install -y rpmfusion-nonfree-release-tainted
-dnf --repo=rpmfusion-nonfree-tainted install -y "*-firmware"
 
 # rpm external repos
 dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
