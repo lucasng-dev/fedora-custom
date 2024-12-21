@@ -40,9 +40,9 @@ dnf install -y \
 	langpacks-{en,pt} \
 	zsh eza bat micro mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
-	btop htop nvtop inxi lm_sensors xclip xsel wl-clipboard \
-	openssl curl wget net-tools telnet traceroute mtr bind-utils mtr nmap netcat whois \
-	iperf3 speedtest-cli wireguard-tools firewall-config syncthing \
+	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard \
+	openssl curl wget net-tools telnet traceroute mtr bind-utils mtr nmap netcat tcpdump \
+	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing \
 	p7zip{,-plugins} zip unzip unrar unar sqlite \
 	cmatrix lolcat fastfetch onefetch \
 	git{,-lfs,-delta} gh direnv jq yq \
@@ -56,9 +56,6 @@ dnf install -y \
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
 dnf autoremove -y
-
-# disable third-party rpm repos after install
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{1password,tailscale}.repo
 
 # install ublue config files
 git clone --depth=1 https://github.com/ublue-os/config.git ublue-config
