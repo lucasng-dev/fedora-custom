@@ -5,6 +5,7 @@ cd "$(mktemp -d)"
 # system info
 rpm -qa | grep -E '^kernel-' | sort
 cat /etc/os-release
+gnome-shell --version
 
 # build-time '/var'
 mkdir -p /var/{cache,lib,log,tmp,home,roothome}
@@ -70,7 +71,7 @@ systemctl enable rpm-ostreed-automatic.timer
 
 # configure flatpak repos
 systemctl disable flatpak-add-fedora-repos.service
-wget -qO /etc/flatpak/remotes.d/flathub.flatpakrepo https://flathub.org/repo/flathub.flatpakrepo
+wget -O /etc/flatpak/remotes.d/flathub.flatpakrepo https://flathub.org/repo/flathub.flatpakrepo
 
 # enable flatpak update service
 systemctl enable flatpak-system-update.timer
@@ -106,30 +107,30 @@ EOF
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
 # install fira-code nerd font from github releases
-wget -qO FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
+wget -O FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
 mkdir -p /usr/share/fonts/nerd-fonts
 unzip -qoC FiraCode.zip '*.ttf' -d /usr/share/fonts/nerd-fonts/fira-code
 fc-cache -f
 
 # install cloudflared from github releases
-wget -qO /usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+wget -O /usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
 chmod +x /usr/bin/cloudflared
 cloudflared --version
 
 # install starship from github releases
-wget -qO starship.tar.gz https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz
+wget -O starship.tar.gz https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz
 tar -xzf starship.tar.gz --wildcards 'starship' && mv starship /usr/bin/starship
 chmod +x /usr/bin/starship
 starship --version
 
 # install mise from github releases
-wget -qO- https://api.github.com/repos/jdx/mise/releases/latest | jq -r '.assets[].browser_download_url' |
-	grep -E '/mise-[^/]+-linux-x64$' | head -n 1 | xargs wget -qO /usr/bin/mise
+wget -O- https://api.github.com/repos/jdx/mise/releases/latest | jq -r '.assets[].browser_download_url' |
+	grep -E '/mise-[^/]+-linux-x64$' | head -n 1 | xargs wget -O /usr/bin/mise
 chmod +x /usr/bin/mise
 mise --version
 
 # install onedrive-gui from github sources
-wget -qO- https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
-	xargs wget -qO OneDriveGUI.tar.gz
+wget -O- https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
+	xargs wget -O OneDriveGUI.tar.gz
 tar -xzf OneDriveGUI.tar.gz
 mv ./*-OneDriveGUI-*/src /usr/lib/OneDriveGUI

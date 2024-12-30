@@ -1,7 +1,8 @@
 ARG BASE_IMAGE=quay.io/fedora/fedora-silverblue:41
 
 FROM scratch AS sources
-COPY / /
+COPY rootfs /rootfs
+COPY build.sh /
 
 FROM ${BASE_IMAGE}
 RUN --mount=type=bind,from=sources,src=/,dst=/sources \
