@@ -17,6 +17,9 @@ mkdir -p /usr/share/rpm && ln -srfT /usr/share/rpm /var/lib/rpm
 mkdir -p /usr/lib/opt && ln -srfT /usr/lib/opt /var/opt
 mkdir -p /usr/lib/usrlocal && ln -srfT /usr/lib/usrlocal /var/usrlocal
 
+# remove unused repos
+rm -f /etc/yum.repos.d/{rpmfusion-*,_copr:*}.repo
+
 # enable rpm fusion repos: https://rpmfusion.org/Configuration
 dnf install -y \
 	"https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
@@ -26,7 +29,7 @@ dnf config-manager setopt fedora-cisco-openh264.enabled=1
 # install rpm fusion multimedia support: https://rpmfusion.org/Howto/Multimedia
 dnf swap -y ffmpeg-free ffmpeg --allowerasing
 for cmd in install update; do
-	dnf "$cmd" -y @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
+	dnf "$cmd" -y @multimedia --setopt='install_weak_deps=False' --exclude=PackageKit-gstreamer-plugin
 done
 dnf install -y intel-media-driver
 dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
@@ -34,7 +37,7 @@ dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
 dnf install -y rpmfusion-free-release-tainted
 dnf install -y libdvdcss
 dnf install -y rpmfusion-nonfree-release-tainted
-dnf --repo=rpmfusion-nonfree-tainted install -y "*-firmware"
+dnf --repo=rpmfusion-nonfree-tainted install -y '*-firmware'
 
 # install rpm packages
 dnf install -y \

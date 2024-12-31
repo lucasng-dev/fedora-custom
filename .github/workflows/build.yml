@@ -17,11 +17,8 @@ on:
       - "**.md"
 
 env:
-  IMAGE_SOURCE: quay.io/fedora/fedora-silverblue
+  BASE_IMAGE: quay.io/fedora/fedora-silverblue:41
   IMAGE_NAME: ${{ github.event.repository.name }}
-  IMAGE_DESCRIPTION: Fedora Silverblue (custom build)
-  IMAGE_VERSION_MAJOR: 41
-  IMAGE_VERSION: "" # will be set by the workflow
   IMAGE_TAGS: "" # will be set by the workflow
 
 jobs:
@@ -37,30 +34,30 @@ jobs:
       - name: Checkout Git sources
         uses: actions/checkout@v4
 
-      - name: Pull OCI source image
+      - name: Pull base image
         uses: Wandalen/wretry.action/main@v3
         with:
           attempt_delay: 15000
           attempt_limit: 3
-          command: podman pull '${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}'
+          command: podman pull '${{ env.BASE_IMAGE }}'
 
-      - name: Set OCI image version and tags
+      - name: Set image tags
         shell: bash
         run: |
           set -eu -o pipefail
-          IMAGE_VERSION=$(podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}')
-          if [[ -z "$IMAGE_VERSION" ]]; then
-            echo "Failed to get version from upstream image!" 1>&2 && exit 1
+          version_full=$(podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.BASE_IMAGE }}')
+          version_major=$(echo "$version_full" | cut -d'.' -f1)
+          if [[ -z "$version_full" ]] || [[ ! "$version_major" =~ ^[0-9]+$ ]]; then
+            echo "Invalid version '$version_full' from upstream image!" 1>&2 && exit 1
           fi
-          echo "IMAGE_VERSION=$IMAGE_VERSION" | tee -a $GITHUB_ENV
           if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
-            IMAGE_TAGS="$IMAGE_VERSION_MAJOR.build-${{ github.run_number }}.pr-${{ github.event.number }}"
+            tags="$version_major.build-${{ github.run_number }}.pr-${{ github.event.number }}"
           else
-            IMAGE_TAGS="$IMAGE_VERSION $IMAGE_VERSION_MAJOR.build-${{ github.run_number }} $IMAGE_VERSION_MAJOR latest"
+            tags="$version_full $version_major.build-${{ github.run_number }} $version_major latest"
           fi
-          echo "IMAGE_TAGS=$IMAGE_TAGS" | tee -a $GITHUB_ENV
+          echo "IMAGE_TAGS=$tags" | tee -a "$GITHUB_ENV"
 
-      - name: Build OCI image
+      - name: Build image
         uses: Wandalen/wretry.action/main@v3
         with:
           action: redhat-actions/buildah-build@v2
@@ -68,18 +65,13 @@ jobs:
           attempt_limit: 2
           with: |
             containerfiles: ./Containerfile
-            image: ${{ env.IMAGE_NAME }}
             oci: true
-            build-args: |
-              BASE_IMAGE=${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}
+            image: ${{ env.IMAGE_NAME }}
             tags: ${{ env.IMAGE_TAGS }}
-            labels: |
-              org.opencontainers.image.title=${{ env.IMAGE_NAME }}
-              org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
-              org.opencontainers.image.version=${{ env.IMAGE_VERSION }}
-              io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
+            build-args: |
+              BASE_IMAGE=${{ env.BASE_IMAGE }}
 
-      - name: Push OCI image
+      - name: Push image
         uses: Wandalen/wretry.action/main@v3
         with:
           action: redhat-actions/push-to-registry@v2
