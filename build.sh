@@ -8,14 +8,9 @@ cat /etc/os-release
 gnome-shell --version
 
 # build-time '/var'
-mkdir -p /var/{cache,lib,log,tmp,home,roothome}
-# persistent '/var'
-mkdir -p /usr/lib/alternatives && ln -srfT /usr/lib/alternatives /var/lib/alternatives
-mkdir -p /usr/lib/vagrant && ln -srfT /usr/lib/vagrant /var/lib/vagrant
-mkdir -p /usr/share/rpm && ln -srfT /usr/share/rpm /var/lib/rpm
+systemd-tmpfiles --create --prefix=/var --exclude-prefix=/var/{opt,usrlocal}
 # persistent '/var' (requires 'rootfs/usr/lib/tmpfiles.d/zz-persist.conf')
-mkdir -p /usr/lib/opt && ln -srfT /usr/lib/opt /var/opt
-mkdir -p /usr/lib/usrlocal && ln -srfT /usr/lib/usrlocal /var/usrlocal
+mkdir -p /usr/lib/{opt,usrlocal} && ln -srf /usr/lib/{opt,usrlocal} /var/
 
 # remove unused repos
 rm -f /etc/yum.repos.d/{rpmfusion-*,_copr:*}.repo
