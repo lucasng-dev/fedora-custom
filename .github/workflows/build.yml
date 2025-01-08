@@ -1,0 +1,88 @@
+---
+name: Build Fedora
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 1,15 * *'
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+
+env:
+  BASE_IMAGE: quay.io/fedora/fedora-silverblue:41
+  IMAGE_NAME: ${{ github.event.repository.name }}
+  IMAGE_TAGS: '' # will be set by the workflow
+
+jobs:
+  build:
+    name: Build and push image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Git sources
+        uses: actions/checkout@v4
+
+      - name: Pull base image
+        uses: Wandalen/wretry.action/main@v3
+        with:
+          attempt_delay: 15000
+          attempt_limit: 3
+          command: podman pull '${{ env.BASE_IMAGE }}'
+
+      - name: Set image tags
+        shell: bash
+        run: |
+          set -eu -o pipefail
+          version_full=$(podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.BASE_IMAGE }}')
+          version_major=$(echo "$version_full" | cut -d'.' -f1)
+          if [[ -z "$version_full" ]] || [[ ! "$version_major" =~ ^[0-9]+$ ]]; then
+            echo "Invalid version '$version_full' from upstream image!" 1>&2 && exit 1
+          fi
+          if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
+            tags="$version_major.build-${{ github.run_number }}.pr-${{ github.event.number }}"
+          else
+            tags="$version_full $version_major.build-${{ github.run_number }} $version_major latest"
+          fi
+          echo "IMAGE_TAGS=$tags" | tee -a "$GITHUB_ENV"
+
+      - name: Build image
+        uses: Wandalen/wretry.action/main@v3
+        with:
+          action: redhat-actions/buildah-build@v2
+          attempt_delay: 15000
+          attempt_limit: 2
+          with: |
+            containerfiles: ./Containerfile
+            oci: true
+            image: ${{ env.IMAGE_NAME }}
+            tags: ${{ env.IMAGE_TAGS }}
+            build-args: |
+              BASE_IMAGE=${{ env.BASE_IMAGE }}
+
+      - name: Push image
+        uses: Wandalen/wretry.action/main@v3
+        with:
+          action: redhat-actions/push-to-registry@v2
+          attempt_delay: 15000
+          attempt_limit: 3
+          with: |
+            image: ${{ env.IMAGE_NAME }}
+            tags: ${{ env.IMAGE_TAGS }}
+            registry: ghcr.io/${{ github.repository_owner }}
+            username: ${{ github.actor }}
+            password: ${{ github.token }}
+            extra-args: |
+              --compression-format=zstd
+              --compression-level=9
