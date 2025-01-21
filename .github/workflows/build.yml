@@ -4,22 +4,22 @@ name: Build Fedora
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 1,15 * *'
+    - cron: "0 12 1,15 * *"
   push:
     branches:
       - main
     paths-ignore:
-      - '**.md'
+      - "**.md"
   pull_request:
     branches:
       - main
     paths-ignore:
-      - '**.md'
+      - "**.md"
 
 env:
   BASE_IMAGE: quay.io/fedora/fedora-silverblue:41
   IMAGE_NAME: ${{ github.event.repository.name }}
-  IMAGE_TAGS: '' # will be set by the workflow
+  IMAGE_TAGS: "" # will be set by the workflow
 
 jobs:
   build:
@@ -51,9 +51,9 @@ jobs:
             echo "Invalid version '$version_full' from upstream image!" 1>&2 && exit 1
           fi
           if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
-            tags="$version_major.build-${{ github.run_number }}.pr-${{ github.event.number }}"
+            tags="$version_major.pr-${{ github.event.number }}.build-${{ github.run_number }} $version_major.pr-${{ github.event.number }}"
           else
-            tags="$version_full $version_major.build-${{ github.run_number }} $version_major latest"
+            tags="$version_major.build-${{ github.run_number }} $version_major $version_full latest"
           fi
           echo "IMAGE_TAGS=$tags" | tee -a "$GITHUB_ENV"
 
@@ -85,4 +85,3 @@ jobs:
             password: ${{ github.token }}
             extra-args: |
               --compression-format=zstd
-              --compression-level=9
