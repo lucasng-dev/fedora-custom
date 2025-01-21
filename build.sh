@@ -36,7 +36,7 @@ dnf install -y \
 	langpacks-{en,pt} \
 	zsh eza bat micro mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
-	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard \
+	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	tailscale curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar sqlite \
@@ -89,8 +89,8 @@ systemctl disable sshd.service
 systemctl enable tailscaled.service
 
 # configure udisks2 from example config file
-udisks2_generate() { ({ set +x; } &>/dev/null && echo "$(grep -Eo "\b$1=.+" /etc/udisks2/mount_options.conf.example | tail -n 1),$2"); }
-cat >/etc/udisks2/mount_options.conf <<-EOF
+udisks2_generate() { ({ set +x; } &>/dev/null && echo "$(grep -Eo "\b$1=.+" /etc/udisks2/mount_options.conf.example | tail -n1),$2"); }
+tee /etc/udisks2/mount_options.conf <<-EOF
 	[defaults]
 	$(udisks2_generate 'ntfs_defaults' 'dmask=0022,fmask=0133,noatime')
 	$(udisks2_generate 'exfat_defaults' 'dmask=0022,fmask=0133,noatime')
@@ -121,7 +121,7 @@ cloudflared --version
 
 # install mise from github releases
 curl -fsSL https://api.github.com/repos/jdx/mise/releases/latest | jq -r '.assets[].browser_download_url' |
-	grep -E '/mise-[^/]+-linux-x64$' | head -n 1 | xargs curl -fsSL -o /usr/bin/mise
+	grep -E '/mise-[^/]+-linux-x64$' | head -n1 | xargs curl -fsSL -o /usr/bin/mise
 chmod +x /usr/bin/mise
 mise --version
 
@@ -135,11 +135,11 @@ mv onedrive-gui/src /usr/lib/OneDriveGUI
 curl -fsSL -o warsaw.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedora/warsaw_setup64.run
 mkdir warsaw && bsdtar -xof warsaw.run -C warsaw --strip-components=1
 dnf install -y warsaw/warsaw-*.x86_64.rpm
-sed -E -e 's/multi-user.target/default.target/g' -e '/^PIDFile=/c\PIDFile=%t/core.pid' \
+sed -E -e 's/multi-user.target/default.target/g' -e 's|(/var)?/run/|%t/|g' \
 	/usr/lib/systemd/system/warsaw.service >/usr/lib/systemd/user/warsaw.service
 systemctl enable warsaw.service
 systemctl --global enable warsaw.service
-cat >/usr/lib/tmpfiles.d/zz-warsaw.conf <<-'EOF'
+tee /usr/lib/tmpfiles.d/zz-warsaw.conf <<-'EOF'
 	C+ /var/usrlocal/bin/warsaw - - - - /usr/lib/usrlocal/bin/warsaw
 	C+ /var/usrlocal/etc/warsaw - - - - /usr/lib/usrlocal/etc/warsaw
 	C+ /var/usrlocal/lib/warsaw - - - - /usr/lib/usrlocal/lib/warsaw

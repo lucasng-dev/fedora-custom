@@ -9,5 +9,5 @@ Based on Fedora Silverblue [upstream image](https://quay.io/repository/fedora/fe
 ## Usage
 
 ```sh
-rpm-ostree rebase ostree-unverified-image:registry:ghcr.io/lucasng-dev/fedora-custom:latest
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/lucasng-dev/fedora-custom:latest
 ```
