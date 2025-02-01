@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=quay.io/fedora/fedora-silverblue:41
+ARG BASE_IMAGE=quay.io/fedora-ostree-desktops/silverblue:41
 
 FROM scratch AS sources
 COPY . .
