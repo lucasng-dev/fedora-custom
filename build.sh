@@ -86,6 +86,9 @@ systemctl --global enable podman-restart.service
 # disable ssh service by default
 systemctl disable sshd.service
 
+# configure systemd-resolved
+sed -Ei '/DNSOverTLS=/c\DNSOverTLS=opportunistic' /usr/lib/systemd/resolved.conf
+
 # enable tailscale service
 systemctl enable tailscaled.service
 
