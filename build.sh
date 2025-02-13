@@ -30,7 +30,6 @@ dnf --repo=rpmfusion-nonfree-tainted install -y '*-firmware'
 
 # enable third-party repos
 dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-dnf config-manager addrepo --from-repofile=https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
 
 # install rpm packages
 dnf install -y \
@@ -38,7 +37,7 @@ dnf install -y \
 	zsh eza bat micro mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
-	tailscale cloudflare-warp curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
+	tailscale curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar sqlite \
 	cmatrix lolcat fastfetch onefetch \
