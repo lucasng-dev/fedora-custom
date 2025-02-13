@@ -37,7 +37,7 @@ dnf install -y \
 	zsh eza bat micro mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
-	tailscale curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
+	sshuttle tailscale curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar sqlite \
 	cmatrix lolcat fastfetch onefetch \
