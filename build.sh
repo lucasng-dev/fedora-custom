@@ -34,7 +34,7 @@ dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fed
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
-	zsh eza bat micro mc \
+	zsh fish eza bat micro mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	sshuttle tailscale curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
