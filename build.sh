@@ -18,7 +18,7 @@ dnf config-manager setopt fedora-cisco-openh264.enabled=1
 # install rpm fusion multimedia packages: https://rpmfusion.org/Howto/Multimedia
 dnf swap -y ffmpeg-free ffmpeg --allowerasing
 for cmd in install update; do
-	dnf "$cmd" -y @multimedia --setopt='install_weak_deps=False' --exclude=PackageKit-gstreamer-plugin
+	dnf "$cmd" -y @multimedia --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin'
 done
 dnf install -y intel-media-driver
 dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
@@ -26,15 +26,15 @@ dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
 dnf install -y rpmfusion-free-release-tainted
 dnf install -y libdvdcss
 dnf install -y rpmfusion-nonfree-release-tainted
-dnf --repo=rpmfusion-nonfree-tainted install -y '*-firmware'
+dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
 
 # enable third-party repos
-dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+dnf config-manager addrepo --from-repofile='https://pkgs.tailscale.com/stable/fedora/tailscale.repo'
 
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
-	zsh fish eza bat micro mc \
+	zsh eza bat micro mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	sshuttle tailscale curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
@@ -54,12 +54,12 @@ dnf remove -y \
 dnf autoremove -y
 find /etc/ -type f -name '*.rpmnew' -delete
 
-# install config files from ublue: https://github.com/ublue-os/config
-git clone --depth=1 https://github.com/ublue-os/config.git ublue-config
-cp -a ublue-config/files/etc/rpm-ostreed.conf /etc/
-cp -a ublue-config/files/etc/systemd/system/rpm-ostreed-automatic.* /etc/systemd/system/
-cp -a ublue-config/files/usr/lib/systemd/system/flatpak-system-update.* /usr/lib/systemd/system/
-cp -a ublue-config/files/usr/lib/systemd/user/flatpak-user-update.* /usr/lib/systemd/user/
+# install config files from ublue: https://github.com/ublue-os/packages
+git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
+cp -a ublue-packages/packages/ublue-os-update-services/src/etc/rpm-ostreed.conf /etc/
+cp -a ublue-packages/packages/ublue-os-update-services/src/usr/lib/systemd/system/rpm-ostreed-automatic.* /usr/lib/systemd/system/
+cp -a ublue-packages/packages/ublue-os-update-services/src/usr/lib/systemd/system/flatpak-system-update.* /usr/lib/systemd/system/
+cp -a ublue-packages/packages/ublue-os-update-services/src/usr/lib/systemd/user/flatpak-user-update.* /usr/lib/systemd/user/
 sed -Ei 's|[^;&]*\bflatpak\b[^;&]+\brepair\b[^;&]*| /usr/bin/true |g' /usr/lib/systemd/{system,user}/flatpak-*-update.service
 
 # enable update services

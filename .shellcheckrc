@@ -1,0 +1,3 @@
+shell=bash
+enable=check-unassigned-uppercase,quote-safe-variables
+disable=SC1090,SC1091,SC1094,SC2139
