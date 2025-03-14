@@ -47,6 +47,7 @@ dnf install -y \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
 	openrgb steam-devices \
 	onedrive python3-{requests,pyside6} \
+	java-openjdk \
 	https://downloads.1password.com/linux/rpm/stable/x86_64/1password-cli-latest.x86_64.rpm \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 dnf remove -y \
