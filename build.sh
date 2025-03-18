@@ -34,7 +34,7 @@ dnf config-manager addrepo --from-repofile='https://pkgs.tailscale.com/stable/fe
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
-	zsh eza bat micro mc \
+	zsh `#eza` bat micro mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	sshuttle tailscale curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
@@ -100,6 +100,13 @@ EOF
 
 # configure gnome-disk-image-mounter to mount writable by default
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
+
+# install eza from github releases
+curl -fsSL -o eza.tar.gz https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz
+mkdir eza && bsdtar -xof eza.tar.gz -C eza
+mv eza/eza /usr/bin/eza
+chmod +x /usr/bin/eza
+eza --version
 
 # install fira-code nerd font from github releases
 curl -fsSL -o fira-code.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
