@@ -28,9 +28,6 @@ dnf install -y libdvdcss
 dnf install -y rpmfusion-nonfree-release-tainted
 dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
 
-# enable third-party repos
-dnf config-manager addrepo --from-repofile='https://pkgs.tailscale.com/stable/fedora/tailscale.repo'
-
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
@@ -38,17 +35,16 @@ dnf install -y \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	sshuttle tailscale curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
-	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing \
+	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing rclone{,-browser} \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar sqlite \
 	cmatrix lolcat fastfetch onefetch \
-	git{,-lfs,-delta} gh direnv jq yq stow \
+	git{,-lfs,-delta} gh direnv jq yq stow java-openjdk \
 	distrobox podman{,-compose,-docker,-tui} \
-	gparted parted btrbk duperemove \
+	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
 	openrgb steam-devices \
 	onedrive python3-{requests,pyside6} \
-	java-openjdk \
-	https://downloads.1password.com/linux/rpm/stable/x86_64/1password-cli-latest.x86_64.rpm \
+	1password-cli insync{,-nautilus} \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
