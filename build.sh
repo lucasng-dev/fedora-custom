@@ -9,24 +9,9 @@ gnome-shell --version
 # remove unused repos
 rm -f /etc/yum.repos.d/{rpmfusion-*,_copr:*}.repo
 
-# enable rpm fusion repos: https://rpmfusion.org/Configuration
-dnf install -y \
-	"https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
-	"https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
-dnf config-manager setopt fedora-cisco-openh264.enabled=1
-
-# install rpm fusion multimedia packages: https://rpmfusion.org/Howto/Multimedia
-dnf swap -y ffmpeg-free ffmpeg --allowerasing
-for cmd in install update; do
-	dnf "$cmd" -y @multimedia --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin'
-done
-dnf install -y intel-media-driver
-dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
-dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
-dnf install -y rpmfusion-free-release-tainted
-dnf install -y libdvdcss
-dnf install -y rpmfusion-nonfree-release-tainted
-dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
+# add external repos
+dnf config-manager addrepo --from-repofile='https://negativo17.org/repos/fedora-multimedia.repo'
+dnf config-manager addrepo --from-repofile='https://pkgs.tailscale.com/stable/fedora/tailscale.repo'
 
 # install rpm packages
 dnf install -y \
@@ -42,7 +27,8 @@ dnf install -y \
 	distrobox podman{,-compose,-docker,-tui} \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
-	openrgb steam-devices \
+	openrgb \
+	ffmpeg libdvdcss \
 	1password-cli insync{,-nautilus} \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 dnf remove -y \
