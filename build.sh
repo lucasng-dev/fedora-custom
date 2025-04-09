@@ -43,7 +43,6 @@ dnf install -y \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
 	openrgb steam-devices \
-	onedrive python3-{requests,pyside6} \
 	1password-cli insync{,-nautilus} \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 dnf remove -y \
@@ -128,12 +127,6 @@ curl -fsSL https://api.github.com/repos/jdx/mise/releases/latest | jq -r '.asset
 	grep -E '/mise-[^/]+-linux-x64$' | head -n1 | xargs curl -fsSL -o /usr/bin/mise
 chmod +x /usr/bin/mise
 mise --version
-
-# install onedrive-gui from github sources
-curl -fsSL https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
-	xargs curl -fsSL -o onedrive-gui.tar.gz
-mkdir onedrive-gui && bsdtar -xof onedrive-gui.tar.gz -C onedrive-gui --strip-components=1
-mv onedrive-gui/src /usr/lib/OneDriveGUI
 
 # install warsaw: https://seg.bb.com.br/duvidas.html?question=10
 curl -fsSL -o warsaw.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedora/warsaw_setup64.run
