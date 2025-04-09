@@ -9,29 +9,14 @@ gnome-shell --version
 # remove unused repos
 rm -f /etc/yum.repos.d/{rpmfusion-*,_copr:*}.repo
 
-# enable rpm fusion repos: https://rpmfusion.org/Configuration
-dnf install -y \
-	"https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
-	"https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
-dnf config-manager setopt fedora-cisco-openh264.enabled=1
-
-# install rpm fusion multimedia packages: https://rpmfusion.org/Howto/Multimedia
-dnf swap -y ffmpeg-free ffmpeg --allowerasing
-for cmd in install update; do
-	dnf "$cmd" -y @multimedia --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin'
-done
-dnf install -y intel-media-driver
-dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
-dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
-dnf install -y rpmfusion-free-release-tainted
-dnf install -y libdvdcss
-dnf install -y rpmfusion-nonfree-release-tainted
-dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
+# add external repos
+dnf config-manager addrepo --from-repofile='https://negativo17.org/repos/fedora-multimedia.repo'
+dnf config-manager addrepo --from-repofile='https://pkgs.tailscale.com/stable/fedora/tailscale.repo'
 
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
-	zsh eza bat micro mc \
+	zsh `#eza` bat micro mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	sshuttle tailscale curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
@@ -42,8 +27,8 @@ dnf install -y \
 	distrobox podman{,-compose,-docker,-tui} \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
-	openrgb steam-devices \
-	onedrive python3-{requests,pyside6} \
+	openrgb \
+	ffmpeg libdvdcss \
 	1password-cli insync{,-nautilus} \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 dnf remove -y \
@@ -97,6 +82,13 @@ EOF
 # configure gnome-disk-image-mounter to mount writable by default
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
+# install eza from github releases
+curl -fsSL -o eza.tar.gz https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz
+mkdir eza && bsdtar -xof eza.tar.gz -C eza
+mv eza/eza /usr/bin/eza
+chmod +x /usr/bin/eza
+eza --version
+
 # install fira-code nerd font from github releases
 curl -fsSL -o fira-code.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
 mkdir fira-code && bsdtar -xof fira-code.zip -C fira-code
@@ -121,12 +113,6 @@ curl -fsSL https://api.github.com/repos/jdx/mise/releases/latest | jq -r '.asset
 	grep -E '/mise-[^/]+-linux-x64$' | head -n1 | xargs curl -fsSL -o /usr/bin/mise
 chmod +x /usr/bin/mise
 mise --version
-
-# install onedrive-gui from github sources
-curl -fsSL https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
-	xargs curl -fsSL -o onedrive-gui.tar.gz
-mkdir onedrive-gui && bsdtar -xof onedrive-gui.tar.gz -C onedrive-gui --strip-components=1
-mv onedrive-gui/src /usr/lib/OneDriveGUI
 
 # install warsaw: https://seg.bb.com.br/duvidas.html?question=10
 curl -fsSL -o warsaw.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedora/warsaw_setup64.run
