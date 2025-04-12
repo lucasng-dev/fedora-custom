@@ -17,7 +17,7 @@ on:
       - "**.md"
 
 env:
-  BASE_IMAGE: quay.io/fedora-ostree-desktops/silverblue:41
+  BASE_IMAGE: ghcr.io/ublue-os/silverblue-main:41
   IMAGE_NAME: ${{ github.event.repository.name }}
   IMAGE_TAGS: "" # will be set by the workflow
 
