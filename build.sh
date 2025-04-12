@@ -9,24 +9,13 @@ gnome-shell --version
 # remove unused repos
 rm -f /etc/yum.repos.d/{rpmfusion-*,_copr:*}.repo
 
-# enable rpm fusion repos: https://rpmfusion.org/Configuration
-dnf install -y \
-	"https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
-	"https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
-dnf config-manager setopt fedora-cisco-openh264.enabled=1
-
-# install rpm fusion multimedia packages: https://rpmfusion.org/Howto/Multimedia
-dnf swap -y ffmpeg-free ffmpeg --allowerasing
-for cmd in install update; do
-	dnf "$cmd" -y @multimedia --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin'
-done
-dnf install -y intel-media-driver
-dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
-dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
-dnf install -y rpmfusion-free-release-tainted
-dnf install -y libdvdcss
-dnf install -y rpmfusion-nonfree-release-tainted
-dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
+# add external repos
+dnf config-manager addrepo --from-repofile='https://negativo17.org/repos/fedora-multimedia.repo'
+dnf config-manager setopt fedora-multimedia.priority=90
+dnf config-manager addrepo --from-repofile='https://negativo17.org/repos/fedora-rar.repo'
+dnf config-manager setopt fedora-rar.priority=90
+dnf config-manager addrepo --from-repofile='https://pkgs.tailscale.com/stable/fedora/tailscale.repo'
+dnf config-manager setopt tailscale-stable.priority=90
 
 # install rpm packages
 dnf install -y \
@@ -36,15 +25,17 @@ dnf install -y \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	sshuttle tailscale curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing rclone{,-browser} \
-	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar sqlite \
+	bsdtar zstd p7zip{,-plugins} zip unzip rar unrar unar sqlite \
 	cmatrix lolcat fastfetch onefetch \
 	git{,-lfs,-delta} gh direnv jq yq stow java-openjdk \
 	distrobox podman{,-compose,-docker,-tui} \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
 	openrgb steam-devices \
+	ffmpeg libdvdcss \
 	onedrive python3-{requests,pyside6} \
-	1password-cli insync{,-nautilus} \
+	insync{,-nautilus} \
+	https://downloads.1password.com/linux/rpm/stable/x86_64/1password-cli-latest.x86_64.rpm \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
