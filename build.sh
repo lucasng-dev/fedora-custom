@@ -6,9 +6,6 @@ rpm -qa | grep -E '^kernel-' | sort
 cat /etc/os-release
 gnome-shell --version
 
-# add external repos
-dnf config-manager addrepo --from-repofile='https://pkgs.tailscale.com/stable/fedora/tailscale.repo'
-
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
