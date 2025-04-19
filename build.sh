@@ -21,6 +21,8 @@ dnf install -y \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} \
 	openrgb steam-devices \
+	execstack \
+	onedrive python3-{requests,pyside6} \
 	insync{,-nautilus} \
 	https://downloads.1password.com/linux/rpm/stable/x86_64/1password-cli-latest.x86_64.rpm \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
@@ -101,6 +103,12 @@ curl -fsSL https://api.github.com/repos/jdx/mise/releases/latest | jq -r '.asset
 chmod +x /usr/bin/mise
 mise --version
 
+# install onedrive-gui from github sources
+curl -fsSL https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
+	xargs curl -fsSL -o onedrive-gui.tar.gz
+mkdir onedrive-gui && bsdtar -xof onedrive-gui.tar.gz -C onedrive-gui --strip-components=1
+mv onedrive-gui/src /usr/lib/OneDriveGUI
+
 # install warsaw: https://seg.bb.com.br/duvidas.html?question=10
 curl -fsSL -o warsaw.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedora/warsaw_setup64.run
 mkdir warsaw && bsdtar -xof warsaw.run -C warsaw --strip-components=1
@@ -114,6 +122,10 @@ tee /usr/lib/tmpfiles.d/zz-warsaw.conf <<-'EOF'
 	C+ /var/usrlocal/etc/warsaw - - - - /usr/lib/usrlocal/etc/warsaw
 	C+ /var/usrlocal/lib/warsaw - - - - /usr/lib/usrlocal/lib/warsaw
 EOF
+# https://aur.archlinux.org/packages/warsaw-bin#comment-1014000
+execstack -s /usr/local/bin/warsaw/core
+chattr +i /usr/local/bin/warsaw/core
+chattr +a /usr/local/bin/warsaw/
 
 # install canon printer drivers: https://tw.canon/en/support/0101230101
 curl -fsSL -o canon.tar.gz https://gdlp01.c-wss.com/gds/1/0100012301/02/cnijfilter2-6.80-1-rpm.tar.gz

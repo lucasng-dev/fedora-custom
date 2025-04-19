@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+StartupNotify=false
+Name=OneDriveGUI
+Comment=A simple GUI for OneDrive Linux client
+Exec=/bin/sh -c 'pgrep -U "$(id -u)" -f OneDriveGUI.py | grep -v "^$$$" || exec /usr/bin/python3 /usr/lib/OneDriveGUI/OneDriveGUI.py'
+Icon=/usr/lib/OneDriveGUI/resources/images/OneDriveGUI.png
+Categories=Network;Office
