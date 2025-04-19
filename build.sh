@@ -122,10 +122,7 @@ tee /usr/lib/tmpfiles.d/zz-warsaw.conf <<-'EOF'
 	C+ /var/usrlocal/etc/warsaw - - - - /usr/lib/usrlocal/etc/warsaw
 	C+ /var/usrlocal/lib/warsaw - - - - /usr/lib/usrlocal/lib/warsaw
 EOF
-# https://aur.archlinux.org/packages/warsaw-bin#comment-1014000
-execstack -s /usr/local/bin/warsaw/core
-chattr +i /usr/local/bin/warsaw/core
-chattr +a /usr/local/bin/warsaw/
+execstack -s /usr/local/bin/warsaw/core # https://aur.archlinux.org/packages/warsaw-bin#comment-1014000
 
 # install canon printer drivers: https://tw.canon/en/support/0101230101
 curl -fsSL -o canon.tar.gz https://gdlp01.c-wss.com/gds/1/0100012301/02/cnijfilter2-6.80-1-rpm.tar.gz
