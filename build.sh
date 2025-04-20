@@ -6,6 +6,29 @@ rpm -qa | grep -E '^kernel-' | sort
 cat /etc/os-release
 gnome-shell --version
 
+# remove unused repos
+rm -f /etc/yum.repos.d/{rpmfusion-*,_copr:*}.repo
+
+# enable rpm fusion repos: https://rpmfusion.org/Configuration
+dnf install -y \
+	"https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
+	"https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+dnf config-manager setopt fedora-cisco-openh264.enabled=1
+dnf install -y 'rpmfusion-*-appstream-data'
+
+# install rpm fusion multimedia packages: https://rpmfusion.org/Howto/Multimedia
+dnf swap -y ffmpeg-free ffmpeg --allowerasing
+for cmd in install update; do
+	dnf "$cmd" -y @multimedia --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin'
+done
+dnf install -y intel-media-driver
+dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
+dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
+dnf install -y rpmfusion-free-release-tainted
+dnf install -y libdvdcss
+dnf install -y rpmfusion-nonfree-release-tainted
+dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
+
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
@@ -19,21 +42,26 @@ dnf install -y \
 	git{,-lfs,-delta} gh direnv jq yq stow java-openjdk \
 	distrobox podman{,-compose,-docker,-tui} \
 	gparted parted btrbk duperemove trash-cli \
-	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} \
+	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
 	openrgb steam-devices \
 	execstack \
 	onedrive python3-{requests,pyside6} \
-	insync{,-nautilus} \
-	https://downloads.1password.com/linux/rpm/stable/x86_64/1password-cli-latest.x86_64.rpm \
+	1password-cli insync{,-nautilus} \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 dnf remove -y \
-	gnome-software-fedora-langpacks gnome-terminal ptyxis just
+	gnome-software-fedora-langpacks gnome-terminal ptyxis
 dnf autoremove -y
 find /etc/ -type f -name '*.rpmnew' -delete
 
+# install config files from ublue: https://github.com/ublue-os/packages
+git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
+cp -a ublue-packages/packages/ublue-os-update-services/src/etc/rpm-ostreed.conf /etc/
+cp -a ublue-packages/packages/ublue-os-update-services/src/usr/lib/systemd/system/rpm-ostreed-automatic.* /usr/lib/systemd/system/
+cp -a ublue-packages/packages/ublue-os-update-services/src/usr/lib/systemd/system/flatpak-system-update.* /usr/lib/systemd/system/
+cp -a ublue-packages/packages/ublue-os-update-services/src/usr/lib/systemd/user/flatpak-user-update.* /usr/lib/systemd/user/
+sed -Ei 's|[^;&]*\bflatpak\b[^;&]+\brepair\b[^;&]*| /usr/bin/true |g' /usr/lib/systemd/{system,user}/flatpak-*-update.service
+
 # enable update services
-sed -Ei 's|[^;&]*\bflatpak\b[^;&]+\brepair\b[^;&]*| /usr/bin/true |g' \
-	/usr/lib/systemd/{system,user}/flatpak-*-update.service
 systemctl enable rpm-ostreed-automatic.timer
 systemctl enable flatpak-system-update.timer
 systemctl --global enable flatpak-user-update.timer
@@ -129,3 +157,8 @@ curl -fsSL -o canon.tar.gz https://gdlp01.c-wss.com/gds/1/0100012301/02/cnijfilt
 echo '55d807ef696053a3ae4f5bb7dd99d063d240bb13c95081806ed5ea3e81464876 canon.tar.gz' | sha256sum -c -
 mkdir canon && bsdtar -xof canon.tar.gz -C canon --strip-components=1
 dnf install -y canon/packages/cnijfilter2-*.x86_64.rpm
+
+# disable 3rd party repos
+dnf config-manager setopt 1password.enabled=0
+dnf config-manager setopt insync.enabled=0
+dnf config-manager setopt tailscale-stable.enabled=0
