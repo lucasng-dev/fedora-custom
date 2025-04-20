@@ -9,7 +9,7 @@ gnome-shell --version
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
-	zsh eza bat micro mc \
+	zsh `#eza` bat micro mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	sshuttle tailscale curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
@@ -21,6 +21,7 @@ dnf install -y \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} \
 	openrgb steam-devices \
+	execstack \
 	onedrive python3-{requests,pyside6} \
 	insync{,-nautilus} \
 	https://downloads.1password.com/linux/rpm/stable/x86_64/1password-cli-latest.x86_64.rpm \
@@ -70,6 +71,13 @@ EOF
 # configure gnome-disk-image-mounter to mount writable by default
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
+# install eza from github releases
+curl -fsSL -o eza.tar.gz https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz
+mkdir eza && bsdtar -xof eza.tar.gz -C eza
+mv eza/eza /usr/bin/eza
+chmod +x /usr/bin/eza
+eza --version
+
 # install fira-code nerd font from github releases
 curl -fsSL -o fira-code.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
 mkdir fira-code && bsdtar -xof fira-code.zip -C fira-code
@@ -114,6 +122,7 @@ tee /usr/lib/tmpfiles.d/zz-warsaw.conf <<-'EOF'
 	C+ /var/usrlocal/etc/warsaw - - - - /usr/lib/usrlocal/etc/warsaw
 	C+ /var/usrlocal/lib/warsaw - - - - /usr/lib/usrlocal/lib/warsaw
 EOF
+execstack -s /usr/local/bin/warsaw/core # https://aur.archlinux.org/packages/warsaw-bin#comment-1014000
 
 # install canon printer drivers: https://tw.canon/en/support/0101230101
 curl -fsSL -o canon.tar.gz https://gdlp01.c-wss.com/gds/1/0100012301/02/cnijfilter2-6.80-1-rpm.tar.gz
