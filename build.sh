@@ -146,9 +146,10 @@ sed -E -e 's/multi-user.target/default.target/g' -e 's|(/var)?/run/|%t/|g' \
 systemctl enable warsaw.service
 systemctl --global enable warsaw.service
 tee /usr/lib/tmpfiles.d/zz-warsaw.conf <<-'EOF'
-	C+ /var/usrlocal/bin/warsaw - - - - /usr/lib/usrlocal/bin/warsaw
+	L+ /var/usrlocal/bin/warsaw - - - - /usr/lib/usrlocal/bin/warsaw
+	L+ /var/usrlocal/lib/warsaw - - - - /usr/lib/usrlocal/lib/warsaw
+	R  /var/usrlocal/etc/warsaw - - - - -
 	C+ /var/usrlocal/etc/warsaw - - - - /usr/lib/usrlocal/etc/warsaw
-	C+ /var/usrlocal/lib/warsaw - - - - /usr/lib/usrlocal/lib/warsaw
 EOF
 execstack -s /usr/local/bin/warsaw/core # https://aur.archlinux.org/packages/warsaw-bin#comment-1014000
 
