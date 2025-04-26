@@ -144,7 +144,7 @@ dnf install -y warsaw/warsaw-*.x86_64.rpm
 sed -Ei 's|/var/run/|/run/|g' /usr/lib/systemd/system/warsaw.service
 # shellcheck disable=SC2016
 sed -E -e 's/multi-user.target/default.target/g' -e 's|/run/|%t/|g' \
-	-e 's|^(ExecStart=.*)$|ExecCondition=/bin/sh -c ''[ "$(/bin/id -u)" != "0" ]''\nExecStartPre=/bin/sleep 15\n\1|g' \
+	-e 's|^(ExecStart=.*)$|ExecCondition=/bin/sh -c '\''[ "$(/bin/id -u)" != "0" ]'\''\nExecStartPre=/bin/sleep 15\n\1|g' \
 	/usr/lib/systemd/system/warsaw.service >/usr/lib/systemd/user/warsaw.service
 systemctl enable warsaw.service
 systemctl --global enable warsaw.service
