@@ -160,4 +160,4 @@ mkdir canon && bsdtar -xof canon.tar.gz -C canon --strip-components=1
 dnf install -y canon/packages/cnijfilter2-*.x86_64.rpm
 
 # disable 3rd party repos
-sed -Ei '/^enabled=1$/c\enabled=0' /etc/yum.repos.d/{1password,insync,tailscale}.repo
+sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{1password,insync,tailscale}.repo
