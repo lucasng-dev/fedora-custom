@@ -141,8 +141,8 @@ mv onedrive-gui/src /usr/lib/OneDriveGUI
 curl -fsSL -o warsaw.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedora/warsaw_setup64.run
 mkdir warsaw && bsdtar -xof warsaw.run -C warsaw --strip-components=1
 dnf install -y warsaw/warsaw-*.x86_64.rpm
-sed -E -e 's/multi-user.target/default.target/g' -e 's|(/var)?/run/|%t/|g' \
-	/usr/lib/systemd/system/warsaw.service >/usr/lib/systemd/user/warsaw.service
+sed -Ei 's|/var/run/|/run/|g' /usr/lib/systemd/system/warsaw.service
+sed -E -e 's/multi-user.target/default.target/g' -e 's|/run/|%t/|g' /usr/lib/systemd/system/warsaw.service >/usr/lib/systemd/user/warsaw.service
 systemctl enable warsaw.service
 systemctl --global enable warsaw.service
 tee /usr/lib/tmpfiles.d/zz-warsaw.conf <<-'EOF'
