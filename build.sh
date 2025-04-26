@@ -142,7 +142,8 @@ curl -fsSL -o warsaw.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedo
 mkdir warsaw && bsdtar -xof warsaw.run -C warsaw --strip-components=1
 dnf install -y warsaw/warsaw-*.x86_64.rpm
 sed -Ei 's|/var/run/|/run/|g' /usr/lib/systemd/system/warsaw.service
-sed -E -e 's/multi-user.target/default.target/g' -e 's|/run/|%t/|g' /usr/lib/systemd/system/warsaw.service >/usr/lib/systemd/user/warsaw.service
+sed -E -e 's/multi-user.target/default.target/g' -e 's|/run/|%t/|g' -e 's|^(ExecStart=.*)$|ExecStartPre=/bin/sleep 10\n\1|g' \
+	/usr/lib/systemd/system/warsaw.service >/usr/lib/systemd/user/warsaw.service
 systemctl enable warsaw.service
 systemctl --global enable warsaw.service
 tee /usr/lib/tmpfiles.d/zz-warsaw.conf <<-'EOF'
