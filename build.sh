@@ -46,7 +46,7 @@ dnf install -y \
 	openrgb steam-devices \
 	execstack \
 	onedrive python3-{requests,pyside6} \
-	1password-cli insync{,-nautilus} \
+	1password-cli \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
@@ -163,4 +163,4 @@ mkdir canon && bsdtar -xof canon.tar.gz -C canon --strip-components=1
 dnf install -y canon/packages/cnijfilter2-*.x86_64.rpm
 
 # disable 3rd party repos
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{1password,insync,tailscale}.repo
+sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{1password,tailscale}.repo
