@@ -99,6 +99,10 @@ EOF
 # configure gnome-disk-image-mounter to mount writable by default
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
+# install veracrypt from github releases
+curl -fsSL https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest | jq -r '.assets[].browser_download_url' |
+	grep -Ei '/veracrypt-[^/]+-fedora-[^/]+-x86_64.rpm$' | grep -Eiv 'console' | head -n1 | xargs dnf install -y
+
 # install eza from github releases
 curl -fsSL -o eza.tar.gz https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz
 mkdir eza && bsdtar -xof eza.tar.gz -C eza
@@ -127,7 +131,7 @@ cloudflared --version
 
 # install mise from github releases
 curl -fsSL https://api.github.com/repos/jdx/mise/releases/latest | jq -r '.assets[].browser_download_url' |
-	grep -E '/mise-[^/]+-linux-x64$' | head -n1 | xargs curl -fsSL -o /usr/bin/mise
+	grep -Ei '/mise-[^/]+-linux-x64$' | head -n1 | xargs curl -fsSL -o /usr/bin/mise
 chmod +x /usr/bin/mise
 mise --version
 
