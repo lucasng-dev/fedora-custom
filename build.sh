@@ -45,8 +45,7 @@ dnf install -y \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
 	openrgb steam-devices \
 	onedrive python3-{requests,pyside6} \
-	1password-cli \
-	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
+	1password-cli
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
 dnf autoremove -y
@@ -109,6 +108,12 @@ mv eza/eza /usr/bin/eza
 chmod +x /usr/bin/eza
 eza --version
 
+# install microsoft fonts from sourceforge
+echo '%_pkgverify_level none' `#https://bugzilla.redhat.com/show_bug.cgi?id=1830347#c15` >/etc/rpm/macros.verify &&
+	dnf install --setopt='tsflags=nocrypto' -y \
+		https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm &&
+	rm -f /etc/rpm/macros.verify
+
 # install fira-code nerd font from github releases
 curl -fsSL -o fira-code.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
 mkdir fira-code && bsdtar -xof fira-code.zip -C fira-code
@@ -143,7 +148,9 @@ mv onedrive-gui/src /usr/lib/OneDriveGUI
 # install warsaw: https://seg.bb.com.br/duvidas.html?question=10
 curl -fsSL -o warsaw.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedora/warsaw_setup64.run
 mkdir warsaw && bsdtar -xof warsaw.run -C warsaw --strip-components=1
-dnf install -y warsaw/warsaw-*.x86_64.rpm
+echo '%_pkgverify_level none' `#https://bugzilla.redhat.com/show_bug.cgi?id=1830347#c15` >/etc/rpm/macros.verify &&
+	dnf install --setopt='tsflags=nocrypto' -y warsaw/warsaw-*.x86_64.rpm &&
+	rm -f /etc/rpm/macros.verify
 sed -Ei 's|/var/run/|/run/|g' /usr/lib/systemd/system/warsaw.service
 # shellcheck disable=SC2016
 sed -E -e 's/multi-user.target/default.target/g' -e 's|/run/|%t/|g' \
