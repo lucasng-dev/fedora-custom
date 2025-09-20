@@ -145,22 +145,6 @@ curl -fsSL https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | j
 mkdir onedrive-gui && bsdtar -xof onedrive-gui.tar.gz -C onedrive-gui --strip-components=1
 mv onedrive-gui/src /usr/lib/OneDriveGUI
 
-# install warsaw: https://seg.bb.com.br/duvidas.html?question=10
-curl -fsSL -o warsaw.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedora/warsaw_setup64.run
-mkdir warsaw && bsdtar -xof warsaw.run -C warsaw --strip-components=1
-echo '%_pkgverify_level none' `#https://bugzilla.redhat.com/show_bug.cgi?id=1830347#c15` >/etc/rpm/macros.verify &&
-	dnf install --setopt='tsflags=nocrypto' -y warsaw/warsaw-*.x86_64.rpm &&
-	rm -f /etc/rpm/macros.verify
-sed -Ei 's|/var/run/|/run/|g' /usr/lib/systemd/system/warsaw.service
-# shellcheck disable=SC2016
-sed -E -e 's/multi-user.target/default.target/g' -e 's|/run/|%t/|g' \
-	-e 's|^(ExecStart=.*)$|ExecCondition=/bin/sh -c '\''[ "$(/bin/id -u)" != "0" ]'\''\nExecStartPre=/bin/sleep 15\n\1|g' \
-	/usr/lib/systemd/system/warsaw.service >/usr/lib/systemd/user/warsaw.service
-systemctl enable warsaw.service
-systemctl --global enable warsaw.service
-# https://aur.archlinux.org/packages/warsaw-bin#comment-1014000
-dnf install -y execstack && execstack -s /usr/local/bin/warsaw/core
-
 # install canon printer drivers: https://tw.canon/en/support/0101230101
 curl -fsSL -o canon.tar.gz https://gdlp01.c-wss.com/gds/1/0100012301/02/cnijfilter2-6.80-1-rpm.tar.gz
 echo '55d807ef696053a3ae4f5bb7dd99d063d240bb13c95081806ed5ea3e81464876 canon.tar.gz' | sha256sum -c -
