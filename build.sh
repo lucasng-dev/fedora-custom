@@ -45,8 +45,7 @@ dnf install -y \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
 	openrgb steam-devices \
 	onedrive python3-{requests,pyside6} \
-	1password-cli \
-	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
+	1password-cli
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
 dnf autoremove -y
@@ -54,11 +53,7 @@ find /etc/ -type f -name '*.rpmnew' -delete
 
 # install config files from ublue: https://github.com/ublue-os/packages
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
-cp -a ublue-packages/packages/ublue-os-update-services/src/etc/rpm-ostreed.conf /etc/
-cp -a ublue-packages/packages/ublue-os-update-services/src/usr/lib/systemd/system/rpm-ostreed-automatic.* /usr/lib/systemd/system/
-cp -a ublue-packages/packages/ublue-os-update-services/src/usr/lib/systemd/system/flatpak-system-update.* /usr/lib/systemd/system/
-cp -a ublue-packages/packages/ublue-os-update-services/src/usr/lib/systemd/user/flatpak-user-update.* /usr/lib/systemd/user/
-sed -Ei 's|[^;&]*\bflatpak\b[^;&]+\brepair\b[^;&]*| /usr/bin/true |g' /usr/lib/systemd/{system,user}/flatpak-*-update.service
+cp -a ublue-packages/packages/ublue-os-update-services/src/. /
 
 # enable update services
 systemctl enable rpm-ostreed-automatic.timer
@@ -108,6 +103,9 @@ mkdir eza && bsdtar -xof eza.tar.gz -C eza
 mv eza/eza /usr/bin/eza
 chmod +x /usr/bin/eza
 eza --version
+
+# install microsoft fonts from sourceforge
+dnf install -y https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 
 # install fira-code nerd font from github releases
 curl -fsSL -o fira-code.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
