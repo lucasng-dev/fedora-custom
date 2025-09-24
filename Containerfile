@@ -15,4 +15,6 @@ RUN --mount=type=bind,from=sources,src=/,dst=/sources \
     mv /var/{opt,usrlocal} /usr/lib/ && \
     find /usr/lib/opt/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | xargs -I'{}' \
     echo 'L "/var/opt/{}" - - - - /usr/lib/opt/{}' | tee /usr/lib/tmpfiles.d/zz-opt.conf && \
-    ostree container commit
+    rm -rf /tmp/* /var/* /usr/local/* && \
+    ostree container commit && \
+    bootc container lint
