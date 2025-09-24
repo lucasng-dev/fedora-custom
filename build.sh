@@ -106,7 +106,7 @@ eza --version
 
 # install microsoft fonts from sourceforge
 echo '%_pkgverify_level none' >/etc/rpm/macros.verify # https://bugzilla.redhat.com/show_bug.cgi?id=1830347#c15
-dnf install --setopt='tsflags=nocrypto' -y https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
+dnf install -y https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 rm -f /etc/rpm/macros.verify
 
 # install fira-code nerd font from github releases
