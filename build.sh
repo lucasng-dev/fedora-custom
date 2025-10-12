@@ -151,3 +151,11 @@ dnf install -y canon/packages/cnijfilter2-*.x86_64.rpm
 
 # disable 3rd party repos
 sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{tailscale,google-chrome,brave-browser,1password}.repo
+
+# fix permissions - https://github.com/bsherman/ublue-custom/blob/main/build_files/1password.sh
+chgrp 1011 /opt/1Password/1Password-BrowserSupport &&
+	chmod g+s /opt/1Password/1Password-BrowserSupport &&
+	echo 'g onepassword 1011' >/usr/lib/sysusers.d/onepassword.conf
+chgrp 1012 /usr/bin/op &&
+	chmod g+s /usr/bin/op &&
+	echo 'g onepassword-cli 1012' >/usr/lib/sysusers.d/onepassword-cli.conf
