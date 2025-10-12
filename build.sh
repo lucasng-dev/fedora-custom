@@ -154,7 +154,9 @@ sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{tailscale,google-chrome,brave
 
 # fix permissions - https://github.com/bsherman/ublue-custom/blob/main/build_files/1password.sh
 rm -f /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
-chgrp 711 /opt/1Password/1Password-BrowserSupport
-echo 'g onepassword 711' >/usr/lib/sysusers.d/onepassword.conf
-chgrp 712 /usr/bin/op
-echo 'g onepassword-cli 712' >/usr/lib/sysusers.d/onepassword-cli.conf
+chgrp 711 /opt/1Password/1Password-BrowserSupport &&
+	chmod g+s /opt/1Password/1Password-BrowserSupport &&
+	echo 'g onepassword 711' >/usr/lib/sysusers.d/onepassword.conf
+chgrp 712 /usr/bin/op &&
+	chmod g+s /usr/bin/op &&
+	echo 'g onepassword-cli 712' >/usr/lib/sysusers.d/onepassword-cli.conf
