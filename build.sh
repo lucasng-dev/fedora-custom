@@ -32,6 +32,10 @@ dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
 # enable 3rd party repos
 dnf config-manager setopt google-chrome.enabled=1
 
+# permission groups
+groupadd -g 1790 onepassword
+groupadd -g 1791 onepassword-cli
+
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
@@ -152,11 +156,7 @@ dnf install -y canon/packages/cnijfilter2-*.x86_64.rpm
 # disable 3rd party repos
 sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{tailscale,google-chrome,brave-browser,1password}.repo
 
-# fix permissions - https://github.com/bsherman/ublue-custom/blob/main/build_files/1password.sh
+# permission groups - https://github.com/bsherman/ublue-custom/blob/main/build_files/1password.sh
 rm -f /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
-chgrp 1790 /opt/1Password/1Password-BrowserSupport &&
-	chmod g+s /opt/1Password/1Password-BrowserSupport &&
-	echo 'g onepassword 1790' >/usr/lib/sysusers.d/onepassword.conf
-chgrp 1791 /usr/bin/op &&
-	chmod g+s /usr/bin/op &&
-	echo 'g onepassword-cli 1791' >/usr/lib/sysusers.d/onepassword-cli.conf
+echo 'g onepassword 1790' >/usr/lib/sysusers.d/onepassword.conf
+echo 'g onepassword-cli 1791' >/usr/lib/sysusers.d/onepassword-cli.conf
