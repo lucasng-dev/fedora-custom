@@ -29,6 +29,9 @@ dnf install -y libdvdcss
 dnf install -y rpmfusion-nonfree-release-tainted
 dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
 
+# enable 3rd party repos
+dnf config-manager setopt google-chrome.enabled=1
+
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
@@ -45,7 +48,7 @@ dnf install -y \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
 	openrgb steam-devices \
 	onedrive python3-{requests,pyside6} \
-	tailscale 1password{,-cli}
+	tailscale google-chrome-stable brave-browser 1password{,-cli}
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
 dnf autoremove -y
@@ -147,4 +150,4 @@ mkdir canon && bsdtar -xof canon.tar.gz -C canon --strip-components=1
 dnf install -y canon/packages/cnijfilter2-*.x86_64.rpm
 
 # disable 3rd party repos
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{tailscale,1password}.repo
+sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{tailscale,google-chrome,brave-browser,1password}.repo
