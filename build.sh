@@ -46,7 +46,7 @@ dnf install -y \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing rclone{,-browser} \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar qemu-img sqlite \
 	cmatrix lolcat fastfetch onefetch \
-	git{,-lfs,-delta} gh direnv jq yq stow java-openjdk \
+	git{,-lfs,-delta} gh direnv jq yq stow java-openjdk android-tools \
 	distrobox podman{,-compose,-docker,-tui} \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
