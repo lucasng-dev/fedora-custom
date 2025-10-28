@@ -44,19 +44,18 @@ dnf install -y \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	sshuttle curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing rclone{,-browser} \
-	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar qemu-img sqlite \
+	bsdtar zstd p7zip{,-plugins,-gui} zip unzip unrar unar qemu-img sqlite \
 	cmatrix lolcat fastfetch onefetch \
 	git{,-lfs,-delta} gh direnv jq yq stow java-openjdk android-tools \
 	distrobox podman{,-compose,-docker,-tui} \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
+	file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse sushi \
 	openrgb steam-devices \
 	onedrive python3-{requests,pyside6} \
 	tailscale google-chrome-stable microsoft-edge-stable 1password{,-cli}
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
-dnf autoremove -y
-find /etc/ -type f -name '*.rpmnew' -delete
 
 # install config files from ublue: https://github.com/ublue-os/packages
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
@@ -160,3 +159,7 @@ sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{tailscale,google-chrome,micro
 rm -f /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
 echo 'g onepassword 1790' >/usr/lib/sysusers.d/onepassword.conf
 echo 'g onepassword-cli 1791' >/usr/lib/sysusers.d/onepassword-cli.conf
+
+# clean up
+dnf autoremove -y
+find /etc/ -type f -name '*.rpmnew' -delete
