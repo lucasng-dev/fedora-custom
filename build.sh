@@ -50,7 +50,7 @@ dnf install -y \
 	distrobox podman{,-compose,-docker,-tui} \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
-	file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse sushi \
+	dconf-editor file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse sushi \
 	openrgb steam-devices \
 	onedrive python3-{requests,pyside6} \
 	tailscale google-chrome-stable microsoft-edge-stable 1password{,-cli}
