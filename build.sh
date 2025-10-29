@@ -44,7 +44,7 @@ dnf install -y \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	sshuttle curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing rclone{,-browser} \
-	bsdtar zstd p7zip{,-plugins,-gui} zip unzip unrar unar qemu-img sqlite \
+	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar qemu-img sqlite \
 	cmatrix lolcat fastfetch onefetch \
 	git{,-lfs,-delta} gh direnv jq yq stow java-openjdk android-tools \
 	distrobox podman{,-compose,-docker,-tui} \
