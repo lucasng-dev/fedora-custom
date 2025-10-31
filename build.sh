@@ -53,7 +53,7 @@ dnf install -y \
 	dconf-editor file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse sushi \
 	openrgb steam-devices \
 	onedrive python3-{requests,pyside6} \
-	tailscale google-chrome-stable microsoft-edge-stable 1password{,-cli}
+	tailscale google-chrome-stable brave-browser 1password{,-cli}
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
 
@@ -153,7 +153,7 @@ mkdir canon && bsdtar -xof canon.tar.gz -C canon --strip-components=1
 dnf install -y canon/packages/cnijfilter2-*.x86_64.rpm
 
 # disable 3rd party repos
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{tailscale,google-chrome,microsoft-edge,1password}.repo
+sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{tailscale,google-chrome,brave-browser,1password}.repo
 
 # permission groups - https://github.com/bsherman/ublue-custom/blob/main/build_files/1password.sh
 rm -f /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
