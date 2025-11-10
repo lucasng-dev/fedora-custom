@@ -159,7 +159,3 @@ sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{tailscale,google-chrome,brave
 rm -f /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
 echo 'g onepassword 1790' >/usr/lib/sysusers.d/onepassword.conf
 echo 'g onepassword-cli 1791' >/usr/lib/sysusers.d/onepassword-cli.conf
-
-# clean up
-dnf autoremove -y
-find /etc/ -type f -name '*.rpmnew' -delete

@@ -12,6 +12,7 @@ RUN --mount=type=bind,from=sources,src=/,dst=/sources \
     systemd-tmpfiles --create --prefix=/var --prefix=/usr/local && \
     cp -a /sources/rootfs/. / && \
     /sources/build.sh && \
+    dnf autoremove -y && find /etc/ -type f -name '*.rpmnew' -delete && \
     mv /var/{opt,usrlocal} /usr/lib/ && \
     find /usr/lib/opt/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | xargs -I'{}' \
     echo 'L "/var/opt/{}" - - - - /usr/lib/opt/{}' | tee /usr/lib/tmpfiles.d/zz-opt.conf && \
