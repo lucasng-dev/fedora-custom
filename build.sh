@@ -40,10 +40,10 @@ dnf install -y \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	sshuttle curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
-	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing rclone{,-browser} \
+	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar qemu-img sqlite \
 	cmatrix lolcat fastfetch onefetch \
-	git{,-lfs,-delta,-filter-repo,-extras} gh direnv jq yq stow java-openjdk android-tools \
+	git{,-lfs,-delta,-filter-repo,-extras} gh direnv jq yq stow android-tools \
 	distrobox podman{,-compose,-docker,-tui} \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
@@ -52,7 +52,7 @@ dnf install -y \
 	onedrive python3-{requests,pyside6} \
 	google-chrome-stable brave-browser tailscale 1password{,-cli}
 dnf remove -y \
-	gnome-software-fedora-langpacks gnome-terminal ptyxis
+	firefox gnome-software-fedora-langpacks gnome-terminal ptyxis
 
 # install config files from ublue: https://github.com/ublue-os/packages
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
