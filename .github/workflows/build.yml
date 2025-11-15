@@ -31,6 +31,13 @@ jobs:
       packages: write
 
     steps:
+      - name: Free up space
+        shell: bash
+        run: |
+          rm -rf /opt/hostedtoolcache
+          docker system prune -af --volumes || true
+          podman system prune -af --volumes || true
+
       - name: Checkout Git sources
         uses: actions/checkout@v5
 
