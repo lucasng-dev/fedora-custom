@@ -37,7 +37,7 @@ jobs:
           set -eux -o pipefail
           # https://github.com/actions/runner-images/issues/10386
           df -h
-          rm -rf /opt/hostedtoolcache
+          rm -rf /opt/hostedtoolcache \
                  /usr/local/.ghcup /opt/ghc \
                  /usr/local/lib/android \
                  /usr/share/dotnet \
