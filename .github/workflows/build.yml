@@ -24,7 +24,7 @@ env:
 jobs:
   build:
     name: Build and push image
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: read
@@ -34,9 +34,17 @@ jobs:
       - name: Free up space
         shell: bash
         run: |
+          set -eux -o pipefail
+          # https://github.com/actions/runner-images/issues/10386
+          df -h
           rm -rf /opt/hostedtoolcache
-          docker system prune -af --volumes || true
-          podman system prune -af --volumes || true
+                 /usr/local/.ghcup /opt/ghc \
+                 /usr/local/lib/android \
+                 /usr/share/dotnet \
+                 /usr/local/share/boost
+          docker system prune -af --volumes
+          podman system prune -af --volumes
+          df -h
 
       - name: Checkout Git sources
         uses: actions/checkout@v5
