@@ -5,13 +5,13 @@ COPY . .
 
 FROM ${BASE_IMAGE}
 RUN --mount=type=bind,from=sources,src=/,dst=/sources \
-    --mount=type=tmpfs,dst=/tmp \
-    --mount=type=tmpfs,dst=/var \
+    --mount=type=tmpfs,tmpfs-size=4G,dst=/tmp \
+    --mount=type=tmpfs,tmpfs-size=8G,dst=/var \
     set -eux -o pipefail && \
     cd "$(mktemp -d)" && \
     systemd-tmpfiles --create --prefix=/var --prefix=/usr/local && \
     cp -a /sources/rootfs/. / && \
-    /sources/build.sh && \
+    /sources/scripts/build.sh && \
     dnf autoremove -y && find /etc/ -type f -name '*.rpmnew' -delete && \
     mv /var/{opt,usrlocal} /usr/lib/ && \
     find /usr/lib/opt/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | xargs -I'{}' \
