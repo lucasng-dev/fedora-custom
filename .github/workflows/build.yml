@@ -47,7 +47,7 @@ jobs:
           df -h
 
       - name: Checkout Git sources
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Pull base image
         uses: Wandalen/wretry.action/main@v3
