@@ -22,41 +22,45 @@ for cmd in install update; do
 	dnf "$cmd" -y @multimedia --setopt='install_weak_deps=False' --exclude='PackageKit-gstreamer-plugin'
 done
 dnf install -y intel-media-driver
-dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
-dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
+# dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
+# dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
 dnf install -y rpmfusion-free-release-tainted
 dnf install -y libdvdcss
 dnf install -y rpmfusion-nonfree-release-tainted
 dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
 
-# permission groups
+# pre-install (1password) : https://github.com/bsherman/ublue-custom/blob/main/build_files/1password.sh
 groupadd -g 1790 onepassword
 groupadd -g 1791 onepassword-cli
 
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
-	zsh `#eza` bat micro mc \
-	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
+	zsh eza bat less micro nano vim neovim mc \
+	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux screen \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
-	sshuttle curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump openssl \
-	whois iperf3 speedtest-cli wireguard-tools firewall-config syncthing \
-	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar qemu-img sqlite \
-	cmatrix lolcat fastfetch onefetch \
-	git{,-lfs,-delta,-filter-repo,-extras} gh direnv jq yq stow android-tools \
+	openssl curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump \
+	whois iperf3 speedtest-cli wireguard-tools firewall-config \
+	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar qemu-img squashfs-tools sqlite \
+	cmatrix lolcat fastfetch onefetch starship \
 	distrobox podman{,-compose,-docker,-tui} \
+	git{,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
+	ShellCheck shfmt direnv mise \
+	android-tools scrcpy \
 	gparted parted btrbk duperemove trash-cli \
-	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer \
-	dconf-editor file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse sushi \
-	openrgb steam-devices \
+	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer sushi \
+	dconf-editor file-roller{,-nautilus} peazip gnome-text-editor gnome-firmware seahorse \
+	openrgb steam-devices sshuttle syncthing \
 	onedrive python3-{requests,pyside6} \
-	google-chrome-stable brave-browser tailscale 1password{,-cli}
+	ms-core-fonts firacode-nerd-fonts \
+	google-chrome-stable brave-browser tailscale cloudflared 1password{,-cli}
 dnf remove -y \
-	firefox gnome-software-fedora-langpacks gnome-terminal ptyxis
+	gnome-software-fedora-langpacks gnome-terminal ptyxis firefox
 
 # install config files from ublue: https://github.com/ublue-os/packages
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
-cp -a ublue-packages/packages/ublue-os-update-services/src/. /
+find ublue-packages/packages -type f -name '*.spec' -delete
+cp -av ublue-packages/packages/ublue-os-update-services/src/. /
 
 # enable update services
 systemctl enable rpm-ostreed-automatic.timer
@@ -78,8 +82,8 @@ sed -Ei 's/(--filter\b)/--filter restart-policy=unless-stopped \1/g' /usr/lib/sy
 systemctl enable podman-restart.service
 systemctl --global enable podman-restart.service
 
-# disable ssh service by default
-systemctl disable sshd.service
+# enable ssh service
+systemctl enable sshd.service
 
 # enable tailscale service
 systemctl enable tailscaled.service
@@ -100,43 +104,6 @@ sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/ap
 curl -fsSL https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest | jq -r '.assets[].browser_download_url' |
 	grep -Ei '/veracrypt-[^/]+-fedora-[^/]+-x86_64.rpm$' | grep -Eiv 'console' | head -n1 | xargs dnf install -y
 
-# install eza from github releases
-curl -fsSL -o eza.tar.gz https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz
-mkdir eza && bsdtar -xof eza.tar.gz -C eza
-mv eza/eza /usr/bin/eza
-chmod +x /usr/bin/eza
-eza --version
-
-# install microsoft fonts from sourceforge
-echo '%_pkgverify_level none' >/etc/rpm/macros.verify # https://bugzilla.redhat.com/show_bug.cgi?id=1830347#c15
-dnf install -y https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
-rm -f /etc/rpm/macros.verify
-
-# install fira-code nerd font from github releases
-curl -fsSL -o fira-code.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
-mkdir fira-code && bsdtar -xof fira-code.zip -C fira-code
-mkdir -p /usr/share/fonts/nerd-fonts/fira-code
-mv fira-code/*.ttf /usr/share/fonts/nerd-fonts/fira-code/
-fc-cache -f
-
-# install starship from github releases
-curl -fsSL -o starship.tar.gz https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz
-mkdir starship && bsdtar -xof starship.tar.gz -C starship
-mv starship/starship /usr/bin/starship
-chmod +x /usr/bin/starship
-starship --version
-
-# install cloudflared from github releases
-curl -fsSL -o /usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
-chmod +x /usr/bin/cloudflared
-cloudflared --version
-
-# install mise from github releases
-curl -fsSL https://api.github.com/repos/jdx/mise/releases/latest | jq -r '.assets[].browser_download_url' |
-	grep -Ei '/mise-[^/]+-linux-x64$' | head -n1 | xargs curl -fsSL -o /usr/bin/mise
-chmod +x /usr/bin/mise
-mise --version
-
 # install onedrive-gui from github sources
 curl -fsSL https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
 	xargs curl -fsSL -o onedrive-gui.tar.gz
@@ -150,9 +117,9 @@ mkdir canon && bsdtar -xof canon.tar.gz -C canon --strip-components=1
 dnf install -y canon/packages/cnijfilter2-*.x86_64.rpm
 
 # disable 3rd party repos
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{google-chrome,brave-browser,tailscale,1password}.repo
+sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{google-chrome,brave-browser,tailscale,cloudflared,1password}.repo
 
-# permission groups - https://github.com/bsherman/ublue-custom/blob/main/build_files/1password.sh
+# post-install (1password)
 rm -f /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
 echo 'g onepassword 1790' >/usr/lib/sysusers.d/onepassword.conf
 echo 'g onepassword-cli 1791' >/usr/lib/sysusers.d/onepassword-cli.conf
