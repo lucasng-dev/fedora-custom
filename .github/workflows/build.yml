@@ -55,7 +55,7 @@ jobs:
         run: |
           podman pull '${{ env.PREVIOUS_IMAGE }}' || { echo "PREVIOUS_IMAGE=" | tee -a "$GITHUB_ENV"; }
 
-      - name: Pull base image
+      - name: Pull upstream image
         uses: Wandalen/wretry.action/main@v3
         with:
           attempt_delay: 15000
@@ -79,7 +79,7 @@ jobs:
       - name: Rechunk
         uses: hhd-dev/rechunk@v1.2.4
         with:
-          ref: raw-image
+          ref: ${{ env.BUILD_IMAGE }}:raw-image
           prev-ref: ${{ env.PREVIOUS_IMAGE }}
           version: rechunked-image
 
