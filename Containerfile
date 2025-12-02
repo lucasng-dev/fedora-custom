@@ -1,9 +1,9 @@
-ARG BASE_IMAGE=quay.io/fedora-ostree-desktops/silverblue:43
+ARG UPSTREAM_IMAGE=quay.io/fedora-ostree-desktops/silverblue:43
 
 FROM scratch AS sources
 COPY . .
 
-FROM ${BASE_IMAGE}
+FROM ${UPSTREAM_IMAGE}
 RUN --mount=type=bind,from=sources,src=/,dst=/sources \
     --mount=type=tmpfs,tmpfs-size=4G,dst=/tmp \
     --mount=type=tmpfs,tmpfs-size=8G,dst=/var \

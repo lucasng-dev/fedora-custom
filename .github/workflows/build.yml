@@ -17,9 +17,10 @@ on:
       - "**.md"
 
 env:
-  BASE_IMAGE: quay.io/fedora-ostree-desktops/silverblue:43
-  IMAGE_NAME: ${{ github.event.repository.name }}
-  IMAGE_TAGS: "" # will be set by the workflow
+  UPSTREAM_IMAGE: quay.io/fedora-ostree-desktops/silverblue:43
+  PREVIOUS_IMAGE: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:43
+  BUILD_IMAGE: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
+  BUILD_TAGS: "" # will be set by the workflow
 
 jobs:
   build:
@@ -49,28 +50,17 @@ jobs:
       - name: Checkout Git sources
         uses: actions/checkout@v6
 
+      - name: Pull previous image
+        shell: bash
+        run: |
+          podman pull '${{ env.PREVIOUS_IMAGE }}' || { echo "PREVIOUS_IMAGE=" | tee -a "$GITHUB_ENV"; }
+
       - name: Pull base image
         uses: Wandalen/wretry.action/main@v3
         with:
           attempt_delay: 15000
           attempt_limit: 3
-          command: podman pull '${{ env.BASE_IMAGE }}'
-
-      - name: Set image tags
-        shell: bash
-        run: |
-          set -eu -o pipefail
-          version_full=$(podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.BASE_IMAGE }}')
-          version_major=$(echo "$version_full" | cut -d'.' -f1)
-          if [[ -z "$version_full" ]] || [[ ! "$version_major" =~ ^[0-9]+$ ]]; then
-            echo "Invalid version '$version_full' from upstream image!" 1>&2 && exit 1
-          fi
-          if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
-            tags="$version_major.pr-${{ github.event.number }}.build-${{ github.run_number }} $version_major.pr-${{ github.event.number }}"
-          else
-            tags="$version_major.build-${{ github.run_number }} $version_major $version_full latest"
-          fi
-          echo "IMAGE_TAGS=$tags" | tee -a "$GITHUB_ENV"
+          command: podman pull '${{ env.UPSTREAM_IMAGE }}'
 
       - name: Build image
         uses: Wandalen/wretry.action/main@v3
@@ -81,10 +71,36 @@ jobs:
           with: |
             containerfiles: ./Containerfile
             oci: true
-            image: ${{ env.IMAGE_NAME }}
-            tags: ${{ env.IMAGE_TAGS }}
+            image: ${{ env.BUILD_IMAGE }}
+            tags: raw-image
             build-args: |
-              BASE_IMAGE=${{ env.BASE_IMAGE }}
+              UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }}
+
+      - name: Rechunk
+        uses: hhd-dev/rechunk@v1.2.4
+        with:
+          ref: raw-image
+          prev-ref: ${{ env.PREVIOUS_IMAGE }}
+          version: rechunked-image
+
+      - name: Set image tags
+        shell: bash
+        run: |
+          set -eu -o pipefail
+          version_full=$(podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')
+          version_major=$(echo "$version_full" | cut -d'.' -f1)
+          if [[ -z "$version_full" ]] || [[ ! "$version_major" =~ ^[0-9]+$ ]]; then
+            echo "Invalid version '$version_full' from upstream image!" 1>&2 && exit 1
+          fi
+          if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
+            tags="$version_major.pr-${{ github.event.number }}.build-${{ github.run_number }} $version_major.pr-${{ github.event.number }}"
+          else
+            tags="$version_major.build-${{ github.run_number }} $version_major $version_full latest"
+          fi
+          for tag in $tags; do
+            podman tag rechunked-image "${{ env.BUILD_IMAGE }}:$tag"
+          done
+          echo "BUILD_TAGS=$tags" | tee -a "$GITHUB_ENV"
 
       - name: Push image
         uses: Wandalen/wretry.action/main@v3
@@ -93,10 +109,8 @@ jobs:
           attempt_delay: 15000
           attempt_limit: 3
           with: |
-            image: ${{ env.IMAGE_NAME }}
-            tags: ${{ env.IMAGE_TAGS }}
             registry: ghcr.io/${{ github.repository_owner }}
+            image: ${{ github.event.repository.name }}
+            tags: ${{ env.BUILD_TAGS }}
             username: ${{ github.actor }}
             password: ${{ github.token }}
-            extra-args: |
-              --compression-format=zstd
