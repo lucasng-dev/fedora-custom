@@ -71,16 +71,16 @@ jobs:
           with: |
             containerfiles: ./Containerfile
             oci: true
-            image: ${{ env.BUILD_IMAGE }}
-            tags: raw-image
+            image: raw-image
             build-args: |
               UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }}
 
       - name: Rechunk
         uses: hhd-dev/rechunk@v1.2.4
         with:
-          ref: ${{ env.BUILD_IMAGE }}:raw-image
+          rechunk: ghcr.io/hhd-dev/rechunk:v1.2.4
           prev-ref: ${{ env.PREVIOUS_IMAGE }}
+          ref: raw-image
           version: rechunked-image
 
       - name: Set image tags
@@ -98,7 +98,7 @@ jobs:
             tags="$version_major.build-${{ github.run_number }} $version_major $version_full latest"
           fi
           for tag in $tags; do
-            podman tag rechunked-image "${{ env.BUILD_IMAGE }}:$tag"
+            podman tag 'rechunked-image' "${{ env.BUILD_IMAGE }}:$tag"
           done
           echo "BUILD_TAGS=$tags" | tee -a "$GITHUB_ENV"
 
