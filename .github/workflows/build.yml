@@ -70,7 +70,7 @@ jobs:
           with: |
             containerfiles: ./Containerfile
             oci: true
-            image: localhost/raw-image
+            image: raw-image
             build-args: |
               UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }}
 
@@ -79,7 +79,7 @@ jobs:
         with:
           rechunk: ghcr.io/hhd-dev/rechunk:v1.2.4
           prev-ref: ${{ env.PREVIOUS_IMAGE }}
-          ref: localhost/raw-image
+          ref: raw-image
           version: rechunked-image
 
       - name: Set image tags
