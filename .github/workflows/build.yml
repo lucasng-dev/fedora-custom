@@ -62,19 +62,6 @@ jobs:
           attempt_limit: 3
           command: podman pull '${{ env.UPSTREAM_IMAGE }}'
 
-      - name: Build image
-        uses: Wandalen/wretry.action/main@v3
-        with:
-          action: redhat-actions/buildah-build@v2
-          attempt_delay: 15000
-          attempt_limit: 2
-          with: |
-            containerfiles: ./Containerfile
-            oci: false
-            image: localhost/raw-image
-            build-args: |
-              UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }}
-
       - name: Get versioning info
         shell: bash
         run: |
@@ -92,12 +79,25 @@ jobs:
           echo "VERSION_FULL=$version_full" | tee -a "$GITHUB_ENV"
           echo "BUILD_TAGS=$tags" | tee -a "$GITHUB_ENV"
 
+      - name: Build image
+        uses: Wandalen/wretry.action/main@v3
+        with:
+          action: redhat-actions/buildah-build@v2
+          attempt_delay: 15000
+          attempt_limit: 2
+          with: |
+            containerfiles: ./Containerfile
+            image: raw-image
+            oci: false
+            build-args: |
+              UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }}
+
       - name: Rechunk
         uses: hhd-dev/rechunk@v1.2.4
         with:
           rechunk: ghcr.io/hhd-dev/rechunk:v1.2.4
+          ref: raw-image
           prev-ref: ${{ env.PREVIOUS_IMAGE }}
-          ref: localhost/raw-image:latest
           version: ${{ env.VERSION_FULL }}
 
       - name: Set image tags
