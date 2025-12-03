@@ -58,7 +58,7 @@ dnf install -y \
 	ms-core-fonts firacode-nerd-fonts \
 	google-chrome-stable brave-browser tailscale cloudflared 1password{,-cli}
 dnf remove -y \
-	gnome-software-fedora-langpacks gnome-terminal ptyxis
+	gnome-software-fedora-langpacks gnome-terminal ptyxis firefox
 
 # install config files from ublue: https://github.com/ublue-os/packages
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
