@@ -44,12 +44,15 @@ dnf install -y \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar qemu-img squashfs-tools sqlite \
 	cmatrix lolcat fastfetch onefetch starship \
 	distrobox podman{,-compose,-docker,-tui} \
-	git{,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
+	git{,-credential-manager,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
 	ShellCheck shfmt direnv mise \
-	android-tools scrcpy \
+	kernel-devel gcc{,-c++} {,c}make autoconf automake meson ninja bison m4 patch texinfo \
+	nodejs{,-npm} yarnpkg pnpm deno bun-bin \
+	python3{,-pip} golang rust{,up,-src,fmt,-analyzer} cargo clippy \
+	caddy android-tools scrcpy code zed{,-cli} \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer sushi \
-	dconf-editor file-roller{,-nautilus} peazip gnome-text-editor gnome-firmware seahorse \
+	dconf-editor file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse \
 	openrgb steam-devices sshuttle syncthing \
 	onedrive python3-{requests,pyside6} \
 	ms-core-fonts firacode-nerd-fonts \
@@ -123,3 +126,6 @@ sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{google-chrome,brave-browser,t
 rm -f /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
 echo 'g onepassword 1790' >/usr/lib/sysusers.d/onepassword.conf
 echo 'g onepassword-cli 1791' >/usr/lib/sysusers.d/onepassword-cli.conf
+
+# post-install
+ln -srT /usr/bin/bison /usr/bin/yacc
