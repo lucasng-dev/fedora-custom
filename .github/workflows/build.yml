@@ -19,6 +19,7 @@ on:
 env:
   UPSTREAM_IMAGE: quay.io/fedora-ostree-desktops/silverblue:43
   PREVIOUS_IMAGE: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:43
+  VERSION_FULL: "" # will be set by the workflow
   BUILD_TAGS: "" # will be set by the workflow
 
 jobs:
@@ -70,19 +71,11 @@ jobs:
           with: |
             containerfiles: ./Containerfile
             oci: true
-            image: raw-image
+            image: localhost/raw-image:latest
             build-args: |
               UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }}
 
-      - name: Rechunk
-        uses: hhd-dev/rechunk@v1.2.4
-        with:
-          rechunk: ghcr.io/hhd-dev/rechunk:v1.2.4
-          prev-ref: ${{ env.PREVIOUS_IMAGE }}
-          ref: raw-image
-          version: rechunked-image
-
-      - name: Set image tags
+      - name: Get versioning info
         shell: bash
         run: |
           set -eu -o pipefail
@@ -96,11 +89,25 @@ jobs:
           else
             tags="$version_major.build-${{ github.run_number }} $version_major $version_full latest"
           fi
-          for tag in $tags; do
-            podman tag 'ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:rechunked-image' \
+          echo "VERSION_FULL=$version_full" | tee -a "$GITHUB_ENV"
+          echo "BUILD_TAGS=$tags" | tee -a "$GITHUB_ENV"
+
+      - name: Rechunk
+        uses: hhd-dev/rechunk@v1.2.4
+        with:
+          rechunk: ghcr.io/hhd-dev/rechunk:v1.2.4
+          prev-ref: ${{ env.PREVIOUS_IMAGE }}
+          ref: localhost/raw-image:latest
+          version: ${{ env.VERSION_FULL }}
+
+      - name: Set image tags
+        shell: bash
+        run: |
+          set -eu -o pipefail
+          for tag in $BUILD_TAGS; do
+            podman tag 'ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ env.VERSION_FULL }}' \
                        "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
           done
-          echo "BUILD_TAGS=$tags" | tee -a "$GITHUB_ENV"
 
       - name: Push image
         uses: Wandalen/wretry.action/main@v3
