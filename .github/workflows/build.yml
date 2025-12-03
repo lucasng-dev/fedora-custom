@@ -4,7 +4,7 @@ name: Build Fedora
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 12 1,15 * *"
+    - cron: "0 12 * * 6"
   push:
     branches:
       - main
@@ -40,16 +40,14 @@ jobs:
           # https://github.com/actions/runner-images/issues/10386
           sudo df -h
           sudo rm -rf /opt/hostedtoolcache /usr/local/.ghcup /opt/ghc /usr/local/lib/android /usr/share/dotnet /usr/local/share/boost
-          sudo docker system prune -af --volumes || true
-          sudo podman system prune -af --volumes || true
           sudo df -h
 
       - name: Checkout Git sources
         id: checkout
         uses: actions/checkout@v6
 
-      - name: Pull upstream image
-        id: pull-upstream-image
+      - name: Pull base images
+        id: pull-base-images
         uses: Wandalen/wretry.action/main@v3
         with:
           command: |
@@ -98,8 +96,8 @@ jobs:
         with:
           command: |
             set -eu -o pipefail
-            echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u ${{ github.actor }} --password-stdin
-            echo "${{ secrets.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo '${{ secrets.GITHUB_TOKEN }}' | sudo podman login ghcr.io -u '${{ github.actor }}' --password-stdin
+            echo '${{ secrets.GITHUB_TOKEN }}' | sudo docker login ghcr.io -u '${{ github.actor }}' --password-stdin
             for tag in $BUILD_TAGS; do
-              sudo skopeo copy '${{ steps.rechunk.outputs.ref }}' "docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
+              (set -x; sudo skopeo copy '${{ steps.rechunk.outputs.ref }}' "docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag")
             done
