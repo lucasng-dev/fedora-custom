@@ -71,7 +71,7 @@ jobs:
           with: |
             containerfiles: ./Containerfile
             oci: true
-            image: localhost/raw-image:latest
+            image: localhost/raw-image
             build-args: |
               UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }}
 
