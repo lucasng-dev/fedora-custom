@@ -33,40 +33,36 @@ jobs:
 
     steps:
       - name: Free up space
+        id: free-up-space
         shell: bash
         run: |
           set -eux -o pipefail
           # https://github.com/actions/runner-images/issues/10386
-          df -h
-          sudo rm -rf /opt/hostedtoolcache \
-                      /usr/local/.ghcup /opt/ghc \
-                      /usr/local/lib/android \
-                      /usr/share/dotnet \
-                      /usr/local/share/boost
-          docker system prune -af --volumes
-          podman system prune -af --volumes
-          df -h
+          sudo df -h
+          sudo rm -rf /opt/hostedtoolcache /usr/local/.ghcup /opt/ghc /usr/local/lib/android /usr/share/dotnet /usr/local/share/boost
+          sudo docker system prune -af --volumes || true
+          sudo podman system prune -af --volumes || true
+          sudo df -h
 
       - name: Checkout Git sources
+        id: checkout
         uses: actions/checkout@v6
 
-      - name: Pull previous image
-        shell: bash
-        run: |
-          podman pull '${{ env.PREVIOUS_IMAGE }}' || { echo "PREVIOUS_IMAGE=" | tee -a "$GITHUB_ENV"; }
-
       - name: Pull upstream image
+        id: pull-upstream-image
         uses: Wandalen/wretry.action/main@v3
         with:
-          attempt_delay: 15000
-          attempt_limit: 3
-          command: podman pull '${{ env.UPSTREAM_IMAGE }}'
+          command: |
+            set -eux -o pipefail
+            sudo podman pull '${{ env.PREVIOUS_IMAGE }}' || { echo "PREVIOUS_IMAGE=" | tee -a "$GITHUB_ENV"; }
+            sudo podman pull '${{ env.UPSTREAM_IMAGE }}'
 
       - name: Get versioning info
+        id: get-versioning-info
         shell: bash
         run: |
           set -eu -o pipefail
-          version_full=$(podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')
+          version_full=$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')
           version_major=$(echo "$version_full" | cut -d'.' -f1)
           if [[ -z "$version_full" ]] || [[ ! "$version_major" =~ ^[0-9]+$ ]]; then
             echo "Invalid version '$version_full' from upstream image!" 1>&2 && exit 1
@@ -80,19 +76,15 @@ jobs:
           echo "BUILD_TAGS=$tags" | tee -a "$GITHUB_ENV"
 
       - name: Build image
+        id: build-image
         uses: Wandalen/wretry.action/main@v3
         with:
-          action: redhat-actions/buildah-build@v2
-          attempt_delay: 15000
-          attempt_limit: 2
-          with: |
-            containerfiles: ./Containerfile
-            image: raw-image
-            oci: false
-            build-args: |
-              UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }}
+          command: |
+            set -eux -o pipefail
+            sudo buildah build -f Containerfile --build-arg UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }} --tag raw-image .
 
       - name: Rechunk
+        id: rechunk
         uses: hhd-dev/rechunk@v1.2.4
         with:
           rechunk: ghcr.io/hhd-dev/rechunk:v1.2.4
@@ -100,24 +92,14 @@ jobs:
           prev-ref: ${{ env.PREVIOUS_IMAGE }}
           version: ${{ env.VERSION_FULL }}
 
-      - name: Set image tags
-        shell: bash
-        run: |
-          set -eu -o pipefail
-          for tag in $BUILD_TAGS; do
-            podman tag 'ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ env.VERSION_FULL }}' \
-                       "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
-          done
-
       - name: Push image
+        id: push-image
         uses: Wandalen/wretry.action/main@v3
         with:
-          action: redhat-actions/push-to-registry@v2
-          attempt_delay: 15000
-          attempt_limit: 3
-          with: |
-            registry: ghcr.io/${{ github.repository_owner }}
-            image: ${{ github.event.repository.name }}
-            tags: ${{ env.BUILD_TAGS }}
-            username: ${{ github.actor }}
-            password: ${{ github.token }}
+          command: |
+            set -eu -o pipefail
+            echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            for tag in $BUILD_TAGS; do
+              sudo skopeo copy '${{ steps.rechunk.outputs.ref }}' "docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
+            done
