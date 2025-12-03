@@ -70,7 +70,7 @@ jobs:
           attempt_limit: 2
           with: |
             containerfiles: ./Containerfile
-            oci: true
+            oci: false
             image: localhost/raw-image
             build-args: |
               UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }}
