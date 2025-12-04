@@ -30,9 +30,6 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout Git sources
-        uses: actions/checkout@v6
-
       - name: Free up space
         shell: bash
         run: |
@@ -40,6 +37,9 @@ jobs:
           sudo df -h
           sudo rm -rf /opt/hostedtoolcache /usr/local/.ghcup /opt/ghc /usr/local/lib/android /usr/share/dotnet /usr/local/share/boost
           sudo df -h
+
+      - name: Checkout Git sources
+        uses: actions/checkout@v6
 
       - name: Pull base images
         uses: Wandalen/wretry.action/main@v3
