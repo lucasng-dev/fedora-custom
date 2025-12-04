@@ -59,7 +59,7 @@ jobs:
         uses: Wandalen/wretry.action/main@v3
         with:
           command: |
-            sudo podman build -f Containerfile --build-arg UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }} --tag raw-image .
+            sudo buildah build -f Containerfile --build-arg UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }} --tag raw-image .
 
       - name: Rechunk
         id: rechunk
