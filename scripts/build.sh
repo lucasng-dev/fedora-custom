@@ -125,7 +125,7 @@ mkdir warsaw && bsdtar -xof warsaw.run -C warsaw --strip-components=1
 echo '%_pkgverify_level none' >/etc/rpm/macros.verify # https://bugzilla.redhat.com/show_bug.cgi?id=1830347#c15
 dnf install -y warsaw/warsaw-*.x86_64.rpm
 rm -f /etc/rpm/macros.verify
-sed -Ei -e 's@/var/run/@/run/@g' -e 's@^ExecStart=(.*)$@ExecStart=/bin/bash -c "\1"@g' \
+sed -Ei -e 's@/var/run/@/run/@g' -e 's@^ExecStart=(.*)$@ExecStart=/bin/bash -c "exec \1"@g' \
 	/usr/lib/systemd/system/warsaw.service
 # shellcheck disable=SC2016
 sed -E -e 's/multi-user.target/graphical.target/g' -e 's@/run/@%t/@g' \
