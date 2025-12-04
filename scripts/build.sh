@@ -128,8 +128,7 @@ rm -f /etc/rpm/macros.verify
 sed -Ei -e 's@/var/run/@/run/@g' -e 's@^ExecStart=(.*)$@ExecStart=/bin/bash -c "exec \1"@g' \
 	/usr/lib/systemd/system/warsaw.service
 # shellcheck disable=SC2016
-sed -E -e 's/multi-user.target/default.target/g' -e 's@/run/@%t/@g' \
-	-e '/^\[Unit\]/a\ConditionUser=!@system' -e '/^\[Service\]/a\ExecStartPre=/bin/sleep 15' \
+sed -E -e 's/multi-user.target/default.target/g' -e '/^\[Unit\]/a\ConditionUser=!@system' -e 's@/run/@%t/@g' \
 	/usr/lib/systemd/system/warsaw.service >/usr/lib/systemd/user/warsaw.service
 systemctl enable warsaw.service
 systemctl --global enable warsaw.service
