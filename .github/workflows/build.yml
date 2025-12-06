@@ -41,7 +41,7 @@ jobs:
       - name: Checkout Git sources
         uses: actions/checkout@v6
 
-      - name: Pull base images
+      - name: Pull base image
         shell: bash
         run: |
           sudo podman pull '${{ env.UPSTREAM_IMAGE }}'
