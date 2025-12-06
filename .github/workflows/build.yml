@@ -42,11 +42,10 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Pull base images
-        uses: Wandalen/wretry.action/main@v3
-        with:
-          command: |
-            sudo podman pull '${{ env.PREVIOUS_IMAGE }}' || { echo "PREVIOUS_IMAGE=" | tee -a "$GITHUB_ENV"; }
-            sudo podman pull '${{ env.UPSTREAM_IMAGE }}'
+        shell: bash
+        run: |
+          sudo podman pull --retry=2 '${{ env.UPSTREAM_IMAGE }}'
+          sudo podman pull --retry=2 '${{ env.PREVIOUS_IMAGE }}' || { echo "PREVIOUS_IMAGE=" | tee -a "$GITHUB_ENV"; }
 
       - name: Get upstream version
         id: upstream_version
@@ -56,10 +55,9 @@ jobs:
           echo "version=$version" | tee -a "$GITHUB_OUTPUT"
 
       - name: Build image
-        uses: Wandalen/wretry.action/main@v3
-        with:
-          command: |
-            sudo buildah build -f Containerfile --build-arg UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }} --tag raw-image .
+        shell: bash
+        run: |
+          sudo buildah build --retry=2 -f Containerfile --build-arg UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }} --tag raw-image .
 
       - name: Rechunk
         id: rechunk
@@ -71,18 +69,16 @@ jobs:
           version: ${{ steps.upstream_version.outputs.version }}
 
       - name: Push image
-        uses: Wandalen/wretry.action/main@v3
-        with:
-          command: |
-            echo '${{ secrets.GITHUB_TOKEN }}' | sudo podman login ghcr.io -u '${{ github.actor }}' --password-stdin
-            echo '${{ secrets.GITHUB_TOKEN }}' | sudo docker login ghcr.io -u '${{ github.actor }}' --password-stdin
-            version_full=${{ steps.rechunk.outputs.version }}
-            version_major=$(echo "$version_full" | cut -d'.' -f1)
-            if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
-              tags=($version_major.pr-${{ github.event.number }}.build-${{ github.run_number }} $version_major.pr-${{ github.event.number }})
-            else
-              tags=($version_major.build-${{ github.run_number }} $version_major $version_full latest)
-            fi
-            for tag in ${tags[@]}; do
-              (set -x; sudo skopeo copy '${{ steps.rechunk.outputs.ref }}' "docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag")
-            done
+        shell: bash
+        run: |
+          echo '${{ secrets.GITHUB_TOKEN }}' | sudo skopeo login --username '${{ github.actor }}' --password-stdin ghcr.io
+          version_full=${{ steps.rechunk.outputs.version }}
+          version_major=$(echo "$version_full" | cut -d'.' -f1)
+          if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
+            tags=($version_major.pr-${{ github.event.number }}.build-${{ github.run_number }} $version_major.pr-${{ github.event.number }})
+          else
+            tags=($version_major.build-${{ github.run_number }} $version_major $version_full latest)
+          fi
+          for tag in ${tags[@]}; do
+            (set -x; sudo skopeo copy --retry-times=2 '${{ steps.rechunk.outputs.ref }}' "docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag")
+          done
