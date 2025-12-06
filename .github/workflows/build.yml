@@ -45,7 +45,6 @@ jobs:
         shell: bash
         run: |
           sudo podman pull '${{ env.UPSTREAM_IMAGE }}'
-          sudo podman pull '${{ env.PREVIOUS_IMAGE }}' || { echo "PREVIOUS_IMAGE=" | tee -a "$GITHUB_ENV"; }
 
       - name: Get upstream version
         id: upstream_version
