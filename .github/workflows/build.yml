@@ -71,7 +71,6 @@ jobs:
       - name: Push image
         shell: bash
         run: |
-          echo '${{ secrets.GITHUB_TOKEN }}' | sudo skopeo login --username '${{ github.actor }}' --password-stdin ghcr.io
           version_full=${{ steps.rechunk.outputs.version }}
           version_major=${{ steps.upstream_version.outputs.version_major }}
           if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
@@ -79,6 +78,7 @@ jobs:
           else
             tags=($version_major.build-${{ github.run_number }} $version_major $version_full latest)
           fi
-          for tag in ${tags[@]}; do
+          echo '${{ secrets.GITHUB_TOKEN }}' | sudo skopeo login --username '${{ github.actor }}' --password-stdin ghcr.io
+          for tag in "${tags[@]}"; do
             (set -x; sudo skopeo copy --retry-times=2 '${{ steps.rechunk.outputs.ref }}' "docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag")
           done
