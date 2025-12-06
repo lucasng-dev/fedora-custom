@@ -18,7 +18,6 @@ on:
 
 env:
   UPSTREAM_IMAGE: quay.io/fedora-ostree-desktops/silverblue:43
-  PREVIOUS_IMAGE: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:43
 
 jobs:
   build:
@@ -50,29 +49,31 @@ jobs:
         id: upstream_version
         shell: bash
         run: |
-          version=$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')
-          echo "version=$version" | tee -a "$GITHUB_OUTPUT"
+          version_full=$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')
+          version_major=$(echo "$version_full" | cut -d'.' -f1)
+          echo "version_full=$version_full" | tee -a "$GITHUB_OUTPUT"
+          echo "version_major=$version_major" | tee -a "$GITHUB_OUTPUT"
 
-      - name: Build image
+      - name: Build new image
         shell: bash
         run: |
-          sudo buildah build --retry=2 -f Containerfile --build-arg UPSTREAM_IMAGE=${{ env.UPSTREAM_IMAGE }} --tag raw-image .
+          sudo buildah build --retry=2 -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' --tag new-image .
 
-      - name: Rechunk
+      - name: Rechunk image
         id: rechunk
         uses: hhd-dev/rechunk@v1.2.4
         with:
           rechunk: ghcr.io/hhd-dev/rechunk:v1.2.4
-          ref: raw-image
-          prev-ref: ${{ env.PREVIOUS_IMAGE }}
-          version: ${{ steps.upstream_version.outputs.version }}
+          ref: new-image
+          prev-ref: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ steps.upstream_version.outputs.version_major }}
+          version: ${{ steps.upstream_version.outputs.version_full }}
 
       - name: Push image
         shell: bash
         run: |
           echo '${{ secrets.GITHUB_TOKEN }}' | sudo skopeo login --username '${{ github.actor }}' --password-stdin ghcr.io
           version_full=${{ steps.rechunk.outputs.version }}
-          version_major=$(echo "$version_full" | cut -d'.' -f1)
+          version_major=${{ steps.upstream_version.outputs.version_major }}
           if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
             tags=($version_major.pr-${{ github.event.number }}.build-${{ github.run_number }} $version_major.pr-${{ github.event.number }})
           else
