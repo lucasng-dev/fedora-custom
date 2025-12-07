@@ -5,18 +5,11 @@ COPY . .
 
 FROM ${UPSTREAM_IMAGE}
 RUN --mount=type=bind,from=sources,src=/,dst=/sources \
-    --mount=type=tmpfs,tmpfs-size=4G,dst=/tmp \
-    --mount=type=tmpfs,tmpfs-size=8G,dst=/var \
-    set -eux -o pipefail && \
     cd "$(mktemp -d)" && \
     systemd-tmpfiles --create --prefix=/var --prefix=/usr/local && \
-    cp -a /sources/rootfs/. / && \
-    /sources/scripts/build.sh && \
-    dnf autoremove -y && find /etc/ -type f -name '*.rpmnew' -delete && fc-cache -f && \
-    mv /var/{opt,usrlocal} /usr/lib/ && \
-    find /usr/lib/opt/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | xargs -I'{}' \
-    echo 'L "/var/opt/{}" - - - - /usr/lib/opt/{}' | tee /usr/lib/tmpfiles.d/zz-opt.conf && \
-    rm -rf /tmp/* /var/* && \
-    ln -srT /var/lib/nix /nix && \
-    ostree container commit && \
-    bootc container lint
+    rm -f /opt && mkdir /opt && ln -srT /var/lib/nix /nix && \
+    cp -a /sources/rootfs/. / && /sources/scripts/build.sh && \
+    dnf autoremove -y && find /etc/ -type f -name '*.rpmnew' -delete && \
+    mv /var/usrlocal /usr/lib/ && \
+    find /var/ /tmp/ -mindepth 1 -maxdepth 1 -exec rm -rf '{}' \; && \
+    ostree container commit && bootc container lint
