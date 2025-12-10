@@ -3,6 +3,12 @@ name: Build Fedora
 
 on:
   workflow_dispatch:
+    inputs:
+      rechunk_prev_ref:
+        description: "Use previous image as rechunk prev-ref"
+        type: boolean
+        required: false
+        default: true
   schedule:
     - cron: "0 12 * * 6"
   push:
@@ -65,7 +71,7 @@ jobs:
         with:
           rechunk: ghcr.io/hhd-dev/rechunk:v1.2.4
           ref: new-image
-          prev-ref: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ steps.upstream_version.outputs.version_major }}
+          prev-ref: ${{ inputs.rechunk_prev_ref && format('ghcr.io/{0}/{1}:{2}', github.repository_owner, github.event.repository.name, steps.upstream_version.outputs.version_major) || '' }}
           version: ${{ steps.upstream_version.outputs.version_full }}
 
       - name: Push image

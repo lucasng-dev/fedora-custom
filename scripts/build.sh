@@ -47,7 +47,7 @@ dnf install -y \
 	distrobox podman{,-compose,-docker,-tui} \
 	git{,-credential-manager,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
 	ShellCheck shfmt direnv mise \
-	kernel-{devel,headers} gcc{,-c++} {,c}make autoconf automake meson ninja bison m4 patch texinfo \
+	kernel-{devel,headers} gcc{,-c++} {,c}make just autoconf automake meson ninja bison m4 patch texinfo \
 	nodejs{,-npm} yarnpkg pnpm deno bun-bin \
 	python3{,-pip} java-openjdk golang rust{,up,-src,fmt,-analyzer} cargo clippy \
 	caddy android-tools scrcpy code zed{,-cli} \
@@ -65,47 +65,6 @@ dnf remove -y \
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
 find ublue-packages/packages -type f -name '*.spec' -delete
 cp -av ublue-packages/packages/ublue-os-update-services/src/. /
-
-# enable virtualization services
-systemctl enable libvirtd.service
-
-# enable update services
-systemctl enable rpm-ostreed-automatic.timer
-systemctl enable flatpak-system-update.timer
-systemctl --global enable flatpak-user-update.timer
-
-# disable gnome-software update service (already managed by previous services)
-grep -ERl '^Exec.*\bgnome-software\b' /etc/xdg/autostart /usr/share/dbus-1/services /usr/lib/systemd/user | xargs rm -f
-grep -ERl '^Exec.*\bgnome-software\b' /usr/share/applications | xargs sed -Ei '/^DBusActivatable/d'
-
-# configure flatpak repos
-systemctl disable flatpak-add-fedora-repos.service
-curl -fsSL -o /etc/flatpak/remotes.d/flathub.flatpakrepo https://flathub.org/repo/flathub.flatpakrepo
-
-# enable podman service
-systemctl enable podman.socket
-systemctl --global enable podman.socket
-sed -Ei 's/(--filter\b)/--filter restart-policy=unless-stopped \1/g' /usr/lib/systemd/system/podman-restart.service
-systemctl enable podman-restart.service
-systemctl --global enable podman-restart.service
-
-# enable ssh service
-systemctl enable sshd.service
-
-# enable tailscale service
-systemctl enable tailscaled.service
-
-# configure udisks2 from example config file
-udisks2_generate() { ({ set +x; } &>/dev/null && echo "$(grep -Eo "\b$1=.+" /etc/udisks2/mount_options.conf.example | tail -n1),$2"); }
-tee /etc/udisks2/mount_options.conf <<-EOF
-	[defaults]
-	$(udisks2_generate 'ntfs_defaults' 'dmask=0022,fmask=0133,noatime')
-	$(udisks2_generate 'exfat_defaults' 'dmask=0022,fmask=0133,noatime')
-	$(udisks2_generate 'vfat_defaults' 'dmask=0022,fmask=0133,noatime')
-EOF
-
-# configure gnome-disk-image-mounter to mount writable by default
-sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
 # install veracrypt from github releases
 curl -fsSL https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest | jq -r '.assets[].browser_download_url' |
@@ -138,6 +97,47 @@ systemctl enable warsaw.service
 systemctl --global enable warsaw.service
 # https://aur.archlinux.org/packages/warsaw-bin#comment-1014000
 dnf install -y execstack && execstack -s /usr/local/bin/warsaw/core
+
+# enable update services
+systemctl enable rpm-ostreed-automatic.timer
+systemctl enable flatpak-system-update.timer
+systemctl --global enable flatpak-user-update.timer
+
+# disable gnome-software update service (already managed by previous services)
+grep -ERl '^Exec.*\bgnome-software\b' /etc/xdg/autostart /usr/share/dbus-1/services /usr/lib/systemd/user | xargs rm -f
+grep -ERl '^Exec.*\bgnome-software\b' /usr/share/applications | xargs sed -Ei '/^DBusActivatable/d'
+
+# configure flatpak repos
+systemctl disable flatpak-add-fedora-repos.service
+curl -fsSL -o /etc/flatpak/remotes.d/flathub.flatpakrepo https://flathub.org/repo/flathub.flatpakrepo
+
+# enable podman service
+systemctl enable podman.socket
+systemctl --global enable podman.socket
+sed -Ei 's/(--filter\b)/--filter restart-policy=unless-stopped \1/g' /usr/lib/systemd/system/podman-restart.service
+systemctl enable podman-restart.service
+systemctl --global enable podman-restart.service
+
+# enable ssh service
+systemctl enable sshd.service
+
+# enable tailscale service
+systemctl enable tailscaled.service
+
+# enable virtualization services
+systemctl enable libvirtd.service
+
+# configure udisks2 from example config file
+udisks2_generate() { ({ set +x; } &>/dev/null && echo "$(grep -Eo "\b$1=.+" /etc/udisks2/mount_options.conf.example | tail -n1),$2"); }
+tee /etc/udisks2/mount_options.conf <<-EOF
+	[defaults]
+	$(udisks2_generate 'ntfs_defaults' 'dmask=0022,fmask=0133,noatime')
+	$(udisks2_generate 'exfat_defaults' 'dmask=0022,fmask=0133,noatime')
+	$(udisks2_generate 'vfat_defaults' 'dmask=0022,fmask=0133,noatime')
+EOF
+
+# configure gnome-disk-image-mounter to mount writable by default
+sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
 # disable 3rd party repos
 sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{google-chrome,brave-browser,tailscale,cloudflared,1password,vscode}.repo
