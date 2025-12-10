@@ -36,17 +36,18 @@ groupadd -g 1791 onepassword-cli
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
+	@virtualization \
 	zsh eza bat less micro nano vim neovim mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux screen \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	openssl curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config \
-	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar qemu-img squashfs-tools sqlite \
+	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools sqlite \
 	cmatrix lolcat fastfetch onefetch starship \
 	distrobox podman{,-compose,-docker,-tui} \
 	git{,-credential-manager,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
 	ShellCheck shfmt direnv mise \
-	kernel-devel gcc{,-c++} {,c}make autoconf automake meson ninja bison m4 patch texinfo \
+	kernel-{devel,headers} gcc{,-c++} {,c}make autoconf automake meson ninja bison m4 patch texinfo \
 	nodejs{,-npm} yarnpkg pnpm deno bun-bin \
 	python3{,-pip} golang rust{,up,-src,fmt,-analyzer} cargo clippy \
 	caddy android-tools scrcpy code zed{,-cli} \
@@ -64,6 +65,9 @@ dnf remove -y \
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
 find ublue-packages/packages -type f -name '*.spec' -delete
 cp -av ublue-packages/packages/ublue-os-update-services/src/. /
+
+# enable virtualization services
+systemctl enable libvirtd.service
 
 # enable update services
 systemctl enable rpm-ostreed-automatic.timer

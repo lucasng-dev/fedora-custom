@@ -7,9 +7,9 @@ FROM ${UPSTREAM_IMAGE}
 RUN --mount=type=bind,from=sources,src=/,dst=/sources \
     cd "$(mktemp -d)" && \
     systemd-tmpfiles --create --prefix=/var --prefix=/usr/local && \
+    mv /var/usrlocal /usr/lib/ && ln -srT /usr/lib/usrlocal /var/usrlocal && \
     rm -f /opt && mkdir /opt && ln -srT /var/lib/nix /nix && \
     cp -a /sources/rootfs/. / && /sources/scripts/build.sh && \
     dnf autoremove -y && find /etc/ -type f -name '*.rpmnew' -delete && \
-    mv /var/usrlocal /usr/lib/ && \
     find /var/ /tmp/ -mindepth 1 -maxdepth 1 -exec rm -rf '{}' \; && \
     ostree container commit && bootc container lint
