@@ -49,7 +49,7 @@ dnf install -y \
 	ShellCheck shfmt direnv mise \
 	kernel-{devel,headers} gcc{,-c++} {,c}make autoconf automake meson ninja bison m4 patch texinfo \
 	nodejs{,-npm} yarnpkg pnpm deno bun-bin \
-	python3{,-pip} golang rust{,up,-src,fmt,-analyzer} cargo clippy \
+	python3{,-pip} java-openjdk golang rust{,up,-src,fmt,-analyzer} cargo clippy \
 	caddy android-tools scrcpy code zed{,-cli} \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer sushi \
