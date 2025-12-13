@@ -140,7 +140,7 @@ EOF
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
 # disable 3rd party repos
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{google-chrome,brave-browser,tailscale,cloudflared,1password,vscode}.repo
+sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{terra,google-chrome,brave-browser,tailscale,cloudflared,1password,vscode}.repo
 
 # post-install (1password)
 rm -f /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
