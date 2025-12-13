@@ -4,11 +4,11 @@ name: Build Fedora
 on:
   workflow_dispatch:
     inputs:
-      rechunk_from_previous_build:
-        description: "Rechunk based on previous build"
+      initial_rechunk:
+        description: "Initial rechunk"
         type: boolean
         required: false
-        default: true
+        default: false
   schedule:
     - cron: "0 12 * * 6"
   push:
@@ -55,7 +55,7 @@ jobs:
             sudo podman pull '${{ env.UPSTREAM_IMAGE }}'
 
       - name: Get upstream version
-        id: upstream_version
+        id: upstream-version
         shell: bash
         run: |
           set -eu -o pipefail
@@ -77,8 +77,8 @@ jobs:
         with:
           rechunk: ghcr.io/hhd-dev/rechunk:v1.2.4
           ref: new-image
-          prev-ref: ${{ inputs.rechunk_from_previous_build && format('ghcr.io/{0}/{1}:{2}', github.repository_owner, github.event.repository.name, steps.upstream_version.outputs.version_major) || '' }}
-          version: ${{ steps.upstream_version.outputs.version_full }}
+          prev-ref: ${{ inputs.initial_rechunk && '' || format('ghcr.io/{0}/{1}:{2}', github.repository_owner, github.event.repository.name, steps.upstream-version.outputs.version_major) }}
+          version: ${{ steps.upstream-version.outputs.version_full }}
 
       - name: Push image
         uses: Wandalen/wretry.action/main@v3
@@ -86,7 +86,7 @@ jobs:
           command: |
             set -eu -o pipefail
             version_full=${{ steps.rechunk.outputs.version }}
-            version_major=${{ steps.upstream_version.outputs.version_major }}
+            version_major=${{ steps.upstream-version.outputs.version_major }}
             if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
               tags=($version_major.pr-${{ github.event.number }}.build-${{ github.run_number }} $version_major.pr-${{ github.event.number }})
             else
