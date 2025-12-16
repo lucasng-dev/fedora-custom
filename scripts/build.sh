@@ -44,12 +44,12 @@ dnf install -y \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools sqlite \
 	cmatrix lolcat fastfetch onefetch starship \
-	distrobox podman{,-compose,-docker,-tui} \
+	distrobox podman{,-compose,-docker,-tui} docker-compose \
 	git{,-credential-manager,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
 	ShellCheck shfmt direnv mise \
 	kernel-{devel,headers} gcc{,-c++} {,c}make just autoconf automake meson ninja bison m4 patch texinfo \
 	nodejs{,-npm} yarnpkg pnpm deno bun-bin \
-	python3{,-pip} java-openjdk golang rust{,up,-src,fmt,-analyzer} cargo clippy \
+	python3{,-pip} java-devel dotnet-sdk-10.0 golang rust{,up,-src,fmt,-analyzer} cargo clippy \
 	caddy android-tools scrcpy code zed{,-cli} \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer sushi \

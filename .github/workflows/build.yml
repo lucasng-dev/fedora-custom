@@ -38,7 +38,7 @@ jobs:
       - name: Free up disk space
         shell: bash
         run: |
-          set -eu -o pipefail
+          set -eux -o pipefail
           # https://github.com/actions/runner-images/issues/10386
           sudo df -h
           sudo rm -rf /opt/hostedtoolcache /usr/local/.ghcup /opt/ghc /usr/local/lib/android /usr/share/dotnet /usr/local/share/boost
@@ -51,14 +51,14 @@ jobs:
         uses: Wandalen/wretry.action/main@v3
         with:
           command: |
-            set -eu -o pipefail
+            set -eux -o pipefail
             sudo podman pull '${{ env.UPSTREAM_IMAGE }}'
 
       - name: Set build parameters
         id: params
         shell: bash
         run: |
-          set -eu -o pipefail
+          set -eux -o pipefail
           version_full=$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')
           version_major=$(echo "$version_full" | cut -d'.' -f1)
           if [[ '${{ inputs.fresh_rechunk }}' == 'true' ]]; then
@@ -74,7 +74,7 @@ jobs:
         uses: Wandalen/wretry.action/main@v3
         with:
           command: |
-            set -eu -o pipefail
+            set -eux -o pipefail
             sudo buildah build -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' --tag new-image .
 
       - name: Rechunk image
@@ -86,24 +86,25 @@ jobs:
           prev-ref: "${{ steps.params.outputs.rechunk_ref }}"
           version: "${{ steps.params.outputs.version_full }}"
 
+      - name: Container registry login
+        shell: bash
+        run: sudo skopeo login --username '${{ github.actor }}' --password '${{ secrets.GITHUB_TOKEN }}' ghcr.io
+
       - name: Push image
         uses: Wandalen/wretry.action/main@v3
         with:
           command: |
-            set -eu -o pipefail
+            set -eux -o pipefail
             version_full='${{ steps.rechunk.outputs.version }}'
             version_major='${{ steps.params.outputs.version_major }}' # version updated by rechunk step
             if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
               tags=("$version_major.pr-${{ github.event.number }}.build-${{ github.run_number }}" "$version_major.pr-${{ github.event.number }}")
             else
-              tags=("$version_major.build-${{ github.run_number }}" "$version_major" "$version_full" 'latest')
+              tags=("$version_full" "$version_major.build-${{ github.run_number }}" "$version_major" 'latest')
             fi
-            echo '${{ secrets.GITHUB_TOKEN }}' | sudo skopeo login --username '${{ github.actor }}' --password-stdin ghcr.io
             source_image='${{ steps.rechunk.outputs.ref }}'
             for tag in "${tags[@]}"; do
               dest_image="docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
-              echo "Pushing image $dest_image..."
               sudo skopeo copy "$source_image" "$dest_image"
               source_image="$dest_image" # uses the pushed image as source for the next tag
-              echo
             done

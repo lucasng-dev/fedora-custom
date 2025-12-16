@@ -9,8 +9,7 @@ RUN --mount=type=bind,from=sources,src=/,dst=/sources \
     systemd-tmpfiles --create --prefix=/var --prefix=/usr/local && \
     mv /var/usrlocal /usr/lib/ && ln -srT /usr/lib/usrlocal /var/usrlocal && \
     rm -f /opt && mv /var/opt / && \
-    ln -srT /var/lib/nix /nix && \
     cp -a /sources/rootfs/. / && /bin/bash /sources/scripts/build.sh && \
-    dnf autoremove -y && find /etc/ -type f -name '*.rpmnew' -delete && \
+    dnf autoremove -y && dnf clean all -y && find /etc/ -type f -name '*.rpmnew' -delete && \
     find /var/ /tmp/ -mindepth 1 -maxdepth 1 -exec rm -rf '{}' \; && \
     ostree container commit && bootc container lint
