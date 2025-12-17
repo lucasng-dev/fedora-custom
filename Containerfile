@@ -5,7 +5,7 @@ COPY . .
 
 FROM ${UPSTREAM_IMAGE}
 RUN --mount=type=bind,from=sources,src=/,dst=/sources \
-    cd "$(mktemp -d)" && \
+    set -eux -o pipefail && cd "$(mktemp -d)" && \
     systemd-tmpfiles --create --prefix=/var --prefix=/usr/local && \
     mv /var/usrlocal /usr/lib/ && ln -srT /usr/lib/usrlocal /var/usrlocal && \
     rm -f /opt && mv /var/opt / && \
