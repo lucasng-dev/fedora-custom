@@ -35,9 +35,11 @@ meta:
   zed:
     packages:
       - zed*
-  containers:
+  podman:
     packages:
       - podman*
+  docker:
+    packages:
       - docker*
       - moby*
   chrome:
