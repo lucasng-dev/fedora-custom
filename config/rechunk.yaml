@@ -39,6 +39,7 @@ meta:
     packages:
       - podman*
       - docker*
+      - moby*
   chrome:
     packages:
       - google-chrome*
@@ -48,6 +49,9 @@ meta:
   edge:
     packages:
       - microsoft-edge*
+  firefox:
+    packages:
+      - firefox*
   qtwebengine:
     packages:
       - qt6-qtwebengine*"
