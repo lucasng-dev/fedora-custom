@@ -81,7 +81,7 @@ jobs:
         shell: bash
         run: |
           set -eux -o pipefail
-          curl -fsSL https://raw.githubusercontent.com/hhd-dev/rechunk/refs/heads/master/src/rechunk/meta.yml |
+          curl -fsSL https://raw.githubusercontent.com/hhd-dev/rechunk/refs/tags/v1.2.4/src/rechunk/meta.yml |
             yq '. *= load("config/rechunk.yaml")' >/tmp/rechunk-meta.yaml
 
       - name: Rechunk image

@@ -4,7 +4,11 @@ meta:
   nodejs:
     packages:
       - nodejs*
+  yarn:
+    packages:
       - yarn*
+  pnpm:
+    packages:
       - pnpm*
   deno:
     packages:
@@ -27,7 +31,11 @@ meta:
   rust:
     packages:
       - rust*
+  cargo:
+    packages:
       - cargo
+  clippy:
+    packages:
       - clippy
   code:
     packages:
@@ -41,6 +49,9 @@ meta:
   buildah:
     packages:
       - buildah*
+  skopeo:
+    packages:
+      - skopeo*
   docker:
     packages:
       - docker*
@@ -59,7 +70,7 @@ meta:
       - firefox*
   qtwebengine:
     packages:
-      - qt6-qtwebengine*"
+      - "*qtwebengine*"
   tailscale:
     packages:
       - tailscale*
@@ -69,5 +80,9 @@ meta:
   libvirt:
     packages:
       - libvirt*
+  qemu:
+    packages:
       - qemu*
+  virt-manager:
+    packages:
       - virt-*
