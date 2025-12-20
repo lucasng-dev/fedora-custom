@@ -38,6 +38,9 @@ meta:
   podman:
     packages:
       - podman*
+  buildah:
+    packages:
+      - buildah*
   docker:
     packages:
       - docker*
@@ -63,7 +66,7 @@ meta:
   1password:
     packages:
       - 1password*
-  virtualization:
+  libvirt:
     packages:
       - libvirt*
       - qemu*
