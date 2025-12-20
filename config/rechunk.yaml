@@ -25,6 +25,7 @@ meta:
   dotnet:
     packages:
       - dotnet*
+      - aspnet*
   golang:
     packages:
       - golang*
