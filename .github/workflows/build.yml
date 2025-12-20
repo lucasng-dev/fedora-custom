@@ -77,6 +77,12 @@ jobs:
             set -eux -o pipefail
             sudo buildah build -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' --tag new-image .
 
+      - name: Rechunk meta
+        run: |
+          set -eux -o pipefail
+          curl -fsSL https://raw.githubusercontent.com/hhd-dev/rechunk/refs/heads/master/src/rechunk/meta.yml |
+            yq '. *= load("config/rechunk.yaml")' >/tmp/rechunk-meta.yaml
+
       - name: Rechunk image
         id: rechunk
         uses: hhd-dev/rechunk@v1.2.4
@@ -85,6 +91,8 @@ jobs:
           ref: new-image
           prev-ref: "${{ steps.params.outputs.rechunk_ref }}"
           version: "${{ steps.params.outputs.version_full }}"
+          meta: /tmp/rechunk-meta.yaml
+          max-layers: 128
 
       - name: Container registry login
         shell: bash

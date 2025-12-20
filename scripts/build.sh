@@ -29,7 +29,7 @@ dnf install -y libdvdcss
 dnf install -y rpmfusion-nonfree-release-tainted
 dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
 
-# pre-install (1password) : https://github.com/bsherman/ublue-custom/blob/main/build_files/1password.sh
+# pre-install (1password): https://github.com/bsherman/ublue-custom/blob/main/build_files/1password.sh
 groupadd -g 1790 onepassword
 groupadd -g 1791 onepassword-cli
 
@@ -103,7 +103,7 @@ systemctl enable rpm-ostreed-automatic.timer
 systemctl enable flatpak-system-update.timer
 systemctl --global enable flatpak-user-update.timer
 
-# disable gnome-software update service (already managed by previous services)
+# disable gnome-software update services (already managed by previous services)
 grep -ERl '^Exec.*\bgnome-software\b' /etc/xdg/autostart/ /usr/share/dbus-1/services/ /usr/lib/systemd/user/ | xargs rm -f
 grep -ERl '^Exec.*\bgnome-software\b' /usr/share/applications/ | xargs sed -Ei '/^DBusActivatable/d'
 
@@ -111,17 +111,17 @@ grep -ERl '^Exec.*\bgnome-software\b' /usr/share/applications/ | xargs sed -Ei '
 systemctl disable flatpak-add-fedora-repos.service
 curl -fsSL -o /etc/flatpak/remotes.d/flathub.flatpakrepo https://flathub.org/repo/flathub.flatpakrepo
 
-# enable podman service
+# enable podman services
 systemctl enable podman.socket
 systemctl --global enable podman.socket
 sed -Ei 's/(--filter\b)/--filter restart-policy=unless-stopped \1/g' /usr/lib/systemd/system/podman-restart.service
 systemctl enable podman-restart.service
 systemctl --global enable podman-restart.service
 
-# enable ssh service
+# enable ssh services
 systemctl enable sshd.service
 
-# enable tailscale service
+# enable tailscale services
 systemctl enable tailscaled.service
 
 # enable virtualization services

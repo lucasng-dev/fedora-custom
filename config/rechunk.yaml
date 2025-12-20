@@ -1,0 +1,64 @@
+# https://github.com/hhd-dev/rechunk/blob/master/src/rechunk/meta.yml
+
+meta:
+  nodejs:
+    packages:
+      - nodejs*
+      - yarn*
+      - pnpm*
+  deno:
+    packages:
+      - deno*
+  bun:
+    packages:
+      - bun-bin*
+  python:
+    packages:
+      - python*
+  java:
+    packages:
+      - java-*
+  dotnet:
+    packages:
+      - dotnet*
+  golang:
+    packages:
+      - golang*
+  rust:
+    packages:
+      - rust*
+      - cargo
+      - clippy
+  code:
+    packages:
+      - code
+  zed:
+    packages:
+      - zed*
+  containers:
+    packages:
+      - podman*
+      - docker*
+  chrome:
+    packages:
+      - google-chrome*
+  brave:
+    packages:
+      - brave-browser*
+  edge:
+    packages:
+      - microsoft-edge*
+  qtwebengine:
+    packages:
+      - qt6-qtwebengine*"
+  tailscale:
+    packages:
+      - tailscale*
+  1password:
+    packages:
+      - 1password*
+  virtualization:
+    packages:
+      - libvirt*
+      - qemu*
+      - virt-*
