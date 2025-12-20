@@ -78,6 +78,7 @@ jobs:
             sudo buildah build -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' --tag new-image .
 
       - name: Rechunk meta
+        shell: bash
         run: |
           set -eux -o pipefail
           curl -fsSL https://raw.githubusercontent.com/hhd-dev/rechunk/refs/heads/master/src/rechunk/meta.yml |
@@ -96,7 +97,9 @@ jobs:
 
       - name: Container registry login
         shell: bash
-        run: sudo skopeo login --username '${{ github.actor }}' --password '${{ secrets.GITHUB_TOKEN }}' ghcr.io
+        run: |
+          set -eu -o pipefail
+          sudo skopeo login --username '${{ github.actor }}' --password '${{ secrets.GITHUB_TOKEN }}' ghcr.io
 
       - name: Push image
         uses: Wandalen/wretry.action/main@v3
