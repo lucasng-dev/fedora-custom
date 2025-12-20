@@ -75,9 +75,9 @@ jobs:
         with:
           command: |
             set -eux -o pipefail
-            sudo buildah build -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' --tag new-image .
+            sudo buildah build -t new-image -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' .
 
-      - name: Rechunk meta
+      - name: Prepare rechunk meta
         shell: bash
         run: |
           set -eux -o pipefail
