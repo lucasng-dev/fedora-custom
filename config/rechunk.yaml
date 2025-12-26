@@ -87,3 +87,6 @@ meta:
   virt-manager:
     packages:
       - virt-*
+  android:
+    packages:
+      - android*

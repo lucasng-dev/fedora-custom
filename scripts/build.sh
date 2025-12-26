@@ -7,7 +7,7 @@ cat /etc/os-release
 gnome-shell --version
 
 # remove unused repos
-rm -f /etc/yum.repos.d/{rpmfusion-*,_copr:*}.repo
+rm -vf /etc/yum.repos.d/{rpmfusion-*,_copr:*}.repo
 
 # enable rpm fusion repos: https://rpmfusion.org/Configuration
 dnf install -y \
@@ -34,10 +34,10 @@ groupadd -g 1790 onepassword
 groupadd -g 1791 onepassword-cli
 
 # install rpm packages
-dnf install -y \
+dnf install -y --allowerasing \
 	langpacks-{en,pt} \
 	@virtualization \
-	zsh eza bat less micro nano vim neovim mc \
+	zsh eza bat less micro{,-default-editor} nano vim neovim mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux screen \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	openssl curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump \
@@ -64,7 +64,7 @@ dnf remove -y \
 # install config files from ublue: https://github.com/ublue-os/packages
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
 find ublue-packages/packages -type f -name '*.spec' -delete
-cp -av ublue-packages/packages/ublue-os-update-services/src/. /
+cp -va ublue-packages/packages/ublue-os-update-services/src/. /
 
 # install veracrypt from github releases
 curl -fsSL https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest | jq -r '.assets[].browser_download_url' |
@@ -74,7 +74,7 @@ curl -fsSL https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest | jq
 curl -fsSL https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
 	xargs curl -fsSL -o onedrive-gui.tar.gz
 mkdir onedrive-gui && bsdtar -xof onedrive-gui.tar.gz -C onedrive-gui --strip-components=1
-mv onedrive-gui/src /usr/lib/OneDriveGUI
+mv -v onedrive-gui/src /usr/lib/OneDriveGUI
 
 # install canon printer drivers: https://tw.canon/en/support/0101230101
 curl -fsSL -o canon.tar.gz https://gdlp01.c-wss.com/gds/1/0100012301/02/cnijfilter2-6.80-1-rpm.tar.gz
@@ -87,7 +87,7 @@ curl -fsSL -o warsaw.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedo
 mkdir warsaw && bsdtar -xof warsaw.run -C warsaw --strip-components=1
 echo '%_pkgverify_level none' >/etc/rpm/macros.verify # https://bugzilla.redhat.com/show_bug.cgi?id=1830347#c15
 dnf install -y warsaw/warsaw-*.x86_64.rpm
-rm -f /etc/rpm/macros.verify
+rm -vf /etc/rpm/macros.verify
 sed -Ei -e 's@/var/run/@/run/@g' -e 's@^ExecStart=(.*)$@ExecStart=/bin/bash -c "exec \1"@g' \
 	/usr/lib/systemd/system/warsaw.service
 # shellcheck disable=SC2016
@@ -104,7 +104,7 @@ systemctl enable flatpak-system-update.timer
 systemctl --global enable flatpak-user-update.timer
 
 # disable gnome-software update services (already managed by previous services)
-grep -ERl '^Exec.*\bgnome-software\b' /etc/xdg/autostart/ /usr/share/dbus-1/services/ /usr/lib/systemd/user/ | xargs rm -f
+grep -ERl '^Exec.*\bgnome-software\b' /etc/xdg/autostart/ /usr/share/dbus-1/services/ /usr/lib/systemd/user/ | xargs rm -vf
 grep -ERl '^Exec.*\bgnome-software\b' /usr/share/applications/ | xargs sed -Ei '/^DBusActivatable/d'
 
 # configure flatpak repos
@@ -143,9 +143,9 @@ sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/ap
 sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{terra,google-chrome,brave-browser,tailscale,cloudflared,1password,vscode}.repo
 
 # post-install (1password)
-rm -f /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
+rm -vf /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
 echo 'g onepassword 1790' >/usr/lib/sysusers.d/onepassword.conf
 echo 'g onepassword-cli 1791' >/usr/lib/sysusers.d/onepassword-cli.conf
 
 # post-install
-ln -srT /usr/bin/bison /usr/bin/yacc
+ln -vsrT /usr/bin/bison /usr/bin/yacc
