@@ -57,7 +57,7 @@ dnf install -y --allowerasing \
 	openrgb steam-devices sshuttle syncthing \
 	onedrive python3-{requests,pyside6} \
 	ms-core-fonts firacode-nerd-fonts \
-	google-chrome-stable brave-browser tailscale cloudflared 1password{,-cli}
+	google-chrome-stable tailscale cloudflared 1password{,-cli}
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis firefox
 
@@ -140,7 +140,7 @@ EOF
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
 # disable 3rd party repos
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{terra,google-chrome,brave-browser,tailscale,cloudflared,1password,vscode}.repo
+sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{terra,google-chrome,tailscale,cloudflared,1password,vscode}.repo
 
 # post-install (1password)
 rm -vf /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
