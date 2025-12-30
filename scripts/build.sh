@@ -44,7 +44,7 @@ dnf install -y --allowerasing \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools sqlite \
 	cmatrix lolcat fastfetch onefetch starship \
-	distrobox podman{,-compose,-machine,-tui,-docker} docker-compose \
+	distrobox podman{,-machine,-tui,-docker} docker-compose \
 	git{,-credential-manager,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
 	ShellCheck shfmt direnv mise \
 	kernel-{devel,headers} gcc{,-c++} {,c}make just autoconf automake meson ninja bison m4 patch texinfo \
