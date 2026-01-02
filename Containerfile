@@ -11,5 +11,5 @@ RUN set -eux -o pipefail && cd /tmp/sources && \
     rm -vf /opt && mv -v /var/opt / && \
     cp -va rootfs/. / && /bin/bash scripts/build.sh && \
     dnf autoremove -y && dnf clean all -y && find /etc/ -type f -name '*.rpmnew' -delete && \
-    find /var/ /tmp/ -mindepth 1 -maxdepth 1 -exec rm -rf '{}' \; && \
+    find /var/ /tmp/ -mindepth 1 -maxdepth 1 -exec rm -rf '{}' ';' && \
     ostree container commit && bootc container lint

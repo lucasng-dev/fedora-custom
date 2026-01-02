@@ -19,6 +19,9 @@ meta:
   python:
     packages:
       - python*
+  perl:
+    packages:
+      - perl*
   java:
     packages:
       - java-*
@@ -90,3 +93,6 @@ meta:
   android:
     packages:
       - android*
+  wifiman:
+    files:
+      - /usr/lib/wifiman-desktop/*
