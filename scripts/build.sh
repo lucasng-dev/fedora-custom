@@ -41,7 +41,7 @@ dnf install -y --allowerasing \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux screen \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	openssl curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump \
-	whois iperf3 speedtest-cli wireguard-tools firewall-config remmina freerdp \
+	whois iperf3 speedtest-cli wireguard-tools firewall-config \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools sqlite \
 	cmatrix lolcat fastfetch onefetch starship topgrade \
 	distrobox podman{,-machine,-tui,-docker} docker-compose \
