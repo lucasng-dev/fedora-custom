@@ -57,7 +57,7 @@ dnf install -y --allowerasing \
 	openrgb steam-devices sshuttle syncthing \
 	onedrive python3-{requests,pyside6} \
 	ms-core-fonts firacode-nerd-fonts \
-	google-chrome-stable tailscale cloudflared 1password{,-cli}
+	google-chrome-stable cloudflared 1password{,-cli}
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis firefox
 
@@ -65,15 +65,6 @@ dnf remove -y \
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
 find ublue-packages/packages -type f -name '*.spec' -delete
 cp -va ublue-packages/packages/ublue-os-update-services/src/. /
-
-# install wifiman: https://ui.com/download/app/wifiman-desktop
-dnf install -y net-tools iw resolvconf libayatana-appindicator3 webkit2gtk4.1 gtk3 # dependencies
-curl -fsSL https://desktop.wifiman.com/wifiman-desktop-linux-manifest.json | jq -r '.platforms[]' |
-	grep -E '\-amd64\.deb$' | head -n1 | xargs curl -fsSL -o wifiman-desktop.deb
-mkdir wifiman-desktop-deb && bsdtar -xof wifiman-desktop.deb -C wifiman-desktop-deb
-mkdir wifiman-desktop && bsdtar -xof wifiman-desktop-deb/data.tar.gz -C wifiman-desktop
-cp -va wifiman-desktop/usr/. /usr/
-mv -v /usr/lib/wifiman-desktop/wifiman-desktop.service /usr/lib/systemd/system/
 
 # install veracrypt from github releases
 curl -fsSL https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest | jq -r '.assets[].browser_download_url' |
@@ -130,10 +121,6 @@ systemctl --global enable podman-restart.service
 # enable ssh services
 systemctl enable sshd.service
 
-# enable network services
-systemctl enable tailscaled.service
-systemctl enable wifiman-desktop.service
-
 # enable virtualization services
 systemctl enable libvirtd.service
 
@@ -150,7 +137,7 @@ EOF
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
 # disable 3rd party repos
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{terra,google-chrome,tailscale,cloudflared,1password,vscode}.repo
+sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{terra,google-chrome,cloudflared,1password,vscode}.repo
 
 # post-install (1password)
 rm -vf /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true

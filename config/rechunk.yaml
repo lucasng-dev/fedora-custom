@@ -75,9 +75,6 @@ meta:
   qtwebengine:
     packages:
       - "*qtwebengine*"
-  tailscale:
-    packages:
-      - tailscale*
   1password:
     packages:
       - 1password*
@@ -93,6 +90,3 @@ meta:
   android:
     packages:
       - android*
-  wifiman:
-    files:
-      - /usr/lib/wifiman-desktop/*
