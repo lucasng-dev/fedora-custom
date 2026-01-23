@@ -44,7 +44,7 @@ dnf install -y --allowerasing \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools sqlite \
 	cmatrix lolcat fastfetch onefetch starship topgrade \
-	distrobox podman{,-machine,-tui,-docker} docker-compose \
+	distrobox podman docker{,-compose} \
 	git{,-credential-manager,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
 	ShellCheck shfmt direnv mise \
 	kernel-{devel,headers} gcc{,-c++} {,c}make just autoconf automake meson ninja bison m4 patch texinfo \
@@ -54,7 +54,7 @@ dnf install -y --allowerasing \
 	gparted parted btrbk duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer sushi \
 	dconf-editor file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse \
-	openrgb steam-devices sshuttle syncthing \
+	openrgb steam-devices sshuttle syncthing samba \
 	onedrive python3-{requests,pyside6} \
 	ms-core-fonts firacode-nerd-fonts \
 	google-chrome-stable cloudflared 1password{,-cli}
@@ -111,10 +111,10 @@ grep -ERl '^Exec.*\bgnome-software\b' /usr/share/applications/ | xargs sed -Ei '
 systemctl disable flatpak-add-fedora-repos.service
 curl -fsSL -o /etc/flatpak/remotes.d/flathub.flatpakrepo https://flathub.org/repo/flathub.flatpakrepo
 
-# enable podman services
+# enable container services
+systemctl enable docker.service
 systemctl enable podman.socket
 systemctl --global enable podman.socket
-sed -Ei 's/(--filter\b)/--filter restart-policy=unless-stopped \1/g' /usr/lib/systemd/system/podman-restart.service
 systemctl enable podman-restart.service
 systemctl --global enable podman-restart.service
 
