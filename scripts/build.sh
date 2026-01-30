@@ -50,14 +50,14 @@ dnf install -y --allowerasing \
 	kernel-{devel,headers} gcc{,-c++} {,c}make just autoconf automake meson ninja bison m4 patch texinfo \
 	nodejs{,-npm} yarnpkg pnpm deno bun-bin \
 	python3{,-pip} java-devel dotnet-sdk-10.0 golang rust{,up,-src,fmt,-analyzer} cargo clippy \
-	caddy android-tools scrcpy code zed{,-cli} \
+	android-tools scrcpy code zed{,-cli} \
 	gparted parted btrbk snapper btrfs-assistant duperemove trash-cli \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer sushi \
 	dconf-editor file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse \
 	openrgb steam-devices sshuttle syncthing samba \
 	onedrive python3-{requests,pyside6} \
 	ms-core-fonts firacode-nerd-fonts \
-	google-chrome-stable cloudflared 1password{,-cli}
+	google-chrome-stable 1password{,-cli}
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis firefox
 
