@@ -66,15 +66,14 @@ jobs:
             sudo buildah build -t localhost/new-image:raw -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' .
 
       - name: Rechunk image
-        uses: Wandalen/wretry.action/main@v3
-        with:
-          command: |
-            set -eux -o pipefail
-            # https://docs.fedoraproject.org/en-US/bootc/building-from-scratch/#_optimizing_container_images
-            sudo podman run --rm --privileged -v /var/lib/containers:/var/lib/containers \
-              quay.io/fedora/fedora-bootc:latest \
-              /usr/libexec/bootc-base-imagectl rechunk --max-layers 128 \
-              localhost/new-image:raw localhost/new-image:rechunked
+        shell: bash
+        run: |
+          set -eux -o pipefail
+          # https://docs.fedoraproject.org/en-US/bootc/building-from-scratch/#_optimizing_container_images
+          sudo podman run --rm --privileged -v /var/lib/containers:/var/lib/containers \
+            quay.io/fedora/fedora-bootc:latest \
+            /usr/libexec/bootc-base-imagectl rechunk --max-layers 128 \
+            localhost/new-image:raw localhost/new-image:rechunked
 
       - name: Container registry login
         shell: bash
