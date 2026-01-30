@@ -3,12 +3,6 @@ name: Build Fedora
 
 on:
   workflow_dispatch:
-    inputs:
-      fresh_rechunk:
-        description: "Fresh rechunk"
-        type: boolean
-        required: false
-        default: false
   schedule:
     - cron: "0 12 * * 6"
   push:
@@ -24,6 +18,7 @@ on:
 
 env:
   UPSTREAM_IMAGE: quay.io/fedora-ostree-desktops/silverblue:43
+  BOOTC_IMAGE: quay.io/fedora/fedora-bootc:43
 
 jobs:
   build:
@@ -41,59 +36,11 @@ jobs:
           set -eux -o pipefail
           # https://github.com/actions/runner-images/issues/10386
           sudo df -h
-          sudo rm -rf /opt/hostedtoolcache /usr/local/.ghcup /opt/ghc /usr/local/lib/android /usr/share/dotnet /usr/local/share/boost
+          sudo rm -rf /opt /usr/local /usr/share/{boost,dotnet,swift} /usr/lib/{google-cloud-sdk,jvm}
           sudo df -h
 
       - name: Checkout source code
         uses: actions/checkout@v6
-
-      - name: Pull upstream image
-        uses: Wandalen/wretry.action/main@v3
-        with:
-          command: |
-            set -eux -o pipefail
-            sudo podman pull '${{ env.UPSTREAM_IMAGE }}'
-
-      - name: Set build parameters
-        id: params
-        shell: bash
-        run: |
-          set -eux -o pipefail
-          version_full=$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')
-          version_major=$(echo "$version_full" | cut -d'.' -f1)
-          if [[ '${{ inputs.fresh_rechunk }}' == 'true' ]]; then
-            rechunk_ref=''
-          else
-            rechunk_ref="ghcr.io/${{ github.repository_owner}}/${{ github.event.repository.name }}:$version_major"
-          fi
-          echo "version_full=$version_full" | tee -a "$GITHUB_OUTPUT"
-          echo "version_major=$version_major" | tee -a "$GITHUB_OUTPUT"
-          echo "rechunk_ref=$rechunk_ref" | tee -a "$GITHUB_OUTPUT"
-
-      - name: Build image
-        uses: Wandalen/wretry.action/main@v3
-        with:
-          command: |
-            set -eux -o pipefail
-            sudo buildah build -t new-image -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' .
-
-      - name: Prepare rechunk meta
-        shell: bash
-        run: |
-          set -eux -o pipefail
-          curl -fsSL https://raw.githubusercontent.com/hhd-dev/rechunk/refs/tags/v1.2.4/src/rechunk/meta.yml |
-            yq '. *= load("config/rechunk.yaml")' >/tmp/rechunk-meta.yaml
-
-      - name: Rechunk image
-        id: rechunk
-        uses: hhd-dev/rechunk@v1.2.4
-        with:
-          rechunk: ghcr.io/hhd-dev/rechunk:v1.2.4
-          ref: new-image
-          prev-ref: "${{ steps.params.outputs.rechunk_ref }}"
-          version: "${{ steps.params.outputs.version_full }}"
-          meta: /tmp/rechunk-meta.yaml
-          max-layers: 128
 
       - name: Container registry login
         shell: bash
@@ -101,19 +48,45 @@ jobs:
           set -eu -o pipefail
           sudo skopeo login --username '${{ github.actor }}' --password '${{ secrets.GITHUB_TOKEN }}' ghcr.io
 
+      - name: Pull base images
+        uses: Wandalen/wretry.action/main@v3
+        with:
+          command: |
+            set -eux -o pipefail
+            sudo podman pull '${{ env.UPSTREAM_IMAGE }}' '${{ env.BOOTC_IMAGE }}'
+            sudo podman image list
+
+      - name: Build image
+        uses: Wandalen/wretry.action/main@v3
+        with:
+          command: |
+            set -eux -o pipefail
+            sudo buildah build -t localhost/new-image:raw -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' .
+            sudo podman image list
+
+      - name: Rechunk image
+        shell: bash
+        run: |
+          set -eux -o pipefail
+          # https://docs.fedoraproject.org/en-US/bootc/building-from-scratch/#_optimizing_container_images
+          sudo podman run --rm --privileged -v /var/lib/containers:/var/lib/containers '${{ env.BOOTC_IMAGE }}' \
+            /usr/libexec/bootc-base-imagectl rechunk --max-layers 128 \
+            localhost/new-image:raw localhost/new-image:rechunked
+          sudo podman image list
+
       - name: Push image
         uses: Wandalen/wretry.action/main@v3
         with:
           command: |
             set -eux -o pipefail
-            version_full='${{ steps.rechunk.outputs.version }}'
-            version_major='${{ steps.params.outputs.version_major }}' # version updated by rechunk step
+            version_full="$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')"
+            version_major="$(echo "$version_full" | cut -d'.' -f1)"
             if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
               tags=("$version_major.pr-${{ github.event.number }}.build-${{ github.run_number }}" "$version_major.pr-${{ github.event.number }}")
             else
               tags=("$version_full" "$version_major.build-${{ github.run_number }}" "$version_major" 'latest')
             fi
-            source_image='${{ steps.rechunk.outputs.ref }}'
+            source_image="containers-storage:localhost/new-image:rechunked"
             for tag in "${tags[@]}"; do
               dest_image="docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
               sudo skopeo copy "$source_image" "$dest_image"
