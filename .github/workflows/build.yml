@@ -18,6 +18,7 @@ on:
 
 env:
   UPSTREAM_IMAGE: quay.io/fedora-ostree-desktops/silverblue:43
+  BOOTC_IMAGE: quay.io/fedora/fedora-bootc:43
 
 jobs:
   build:
@@ -41,12 +42,18 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v6
 
+      - name: Container registry login
+        shell: bash
+        run: |
+          set -eu -o pipefail
+          sudo skopeo login --username '${{ github.actor }}' --password '${{ secrets.GITHUB_TOKEN }}' ghcr.io
+
       - name: Pull upstream image
         uses: Wandalen/wretry.action/main@v3
         with:
           command: |
             set -eux -o pipefail
-            sudo podman pull '${{ env.UPSTREAM_IMAGE }}'
+            sudo podman pull '${{ env.UPSTREAM_IMAGE }}' '${{ env.BOOTC_IMAGE }}'
 
       - name: Set build parameters
         id: params
@@ -70,16 +77,9 @@ jobs:
         run: |
           set -eux -o pipefail
           # https://docs.fedoraproject.org/en-US/bootc/building-from-scratch/#_optimizing_container_images
-          sudo podman run --rm --privileged -v /var/lib/containers:/var/lib/containers \
-            quay.io/fedora/fedora-bootc:latest \
+          sudo podman run --rm --privileged -v /var/lib/containers:/var/lib/containers '${{ env.BOOTC_IMAGE }}' \
             /usr/libexec/bootc-base-imagectl rechunk --max-layers 128 \
             localhost/new-image:raw localhost/new-image:rechunked
-
-      - name: Container registry login
-        shell: bash
-        run: |
-          set -eu -o pipefail
-          sudo skopeo login --username '${{ github.actor }}' --password '${{ secrets.GITHUB_TOKEN }}' ghcr.io
 
       - name: Push image
         uses: Wandalen/wretry.action/main@v3
@@ -93,7 +93,7 @@ jobs:
             else
               tags=("$version_full" "$version_major.build-${{ github.run_number }}" "$version_major" 'latest')
             fi
-            source_image='localhost/new-image:rechuked'
+            source_image='containers-storage:localhost/new-image:rechuked'
             for tag in "${tags[@]}"; do
               dest_image="docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
               sudo skopeo copy "$source_image" "$dest_image"
