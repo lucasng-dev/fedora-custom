@@ -60,7 +60,7 @@ jobs:
         with:
           command: |
             set -eux -o pipefail
-            sudo buildah build -t new-image:raw -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' .
+            sudo buildah build -t localhost/new-image:raw -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' .
 
       - name: Rechunk image
         shell: bash
@@ -69,7 +69,7 @@ jobs:
           # https://docs.fedoraproject.org/en-US/bootc/building-from-scratch/#_optimizing_container_images
           sudo podman run --rm --privileged -v /var/lib/containers:/var/lib/containers '${{ env.BOOTC_IMAGE }}' \
             /usr/libexec/bootc-base-imagectl rechunk --max-layers 128 \
-            new-image:raw new-image:rechunked
+            localhost/new-image:raw localhost/new-image:rechunked
 
       - name: Push image
         uses: Wandalen/wretry.action/main@v3
