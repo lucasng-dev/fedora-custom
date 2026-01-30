@@ -36,7 +36,7 @@ jobs:
           set -eux -o pipefail
           # https://github.com/actions/runner-images/issues/10386
           sudo df -h
-          sudo rm -rf /opt/hostedtoolcache /usr/local/.ghcup /opt/ghc /usr/local/lib/android /usr/share/dotnet /usr/local/share/boost
+          sudo rm -rf /opt /usr/local /usr/share/{boost,dotnet,swift} /usr/lib/{google-cloud-sdk,jvm}
           sudo df -h
 
       - name: Checkout source code
