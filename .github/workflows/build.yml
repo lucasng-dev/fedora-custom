@@ -86,7 +86,7 @@ jobs:
             else
               tags=("$version_full" "$version_major.build-${{ github.run_number }}" "$version_major" 'latest')
             fi
-            source_image="containers-storage:$(sudo podman image list -q localhost/new-image:rechuked)"
+            source_image="containers-storage:localhost/new-image:rechunked"
             for tag in "${tags[@]}"; do
               dest_image="docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
               sudo skopeo copy --preserve-digests --all "$source_image" "$dest_image"
