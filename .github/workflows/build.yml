@@ -48,29 +48,19 @@ jobs:
           set -eu -o pipefail
           sudo skopeo login --username '${{ github.actor }}' --password '${{ secrets.GITHUB_TOKEN }}' ghcr.io
 
-      - name: Pull upstream image
+      - name: Pull base images
         uses: Wandalen/wretry.action/main@v3
         with:
           command: |
             set -eux -o pipefail
             sudo podman pull '${{ env.UPSTREAM_IMAGE }}' '${{ env.BOOTC_IMAGE }}'
 
-      - name: Set build parameters
-        id: params
-        shell: bash
-        run: |
-          set -eux -o pipefail
-          version_full=$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')
-          version_major=$(echo "$version_full" | cut -d'.' -f1)
-          echo "version_full=$version_full" | tee -a "$GITHUB_OUTPUT"
-          echo "version_major=$version_major" | tee -a "$GITHUB_OUTPUT"
-
       - name: Build image
         uses: Wandalen/wretry.action/main@v3
         with:
           command: |
             set -eux -o pipefail
-            sudo buildah build -t localhost/new-image:raw -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' .
+            sudo buildah build -t new-image:raw -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' .
 
       - name: Rechunk image
         shell: bash
@@ -79,21 +69,21 @@ jobs:
           # https://docs.fedoraproject.org/en-US/bootc/building-from-scratch/#_optimizing_container_images
           sudo podman run --rm --privileged -v /var/lib/containers:/var/lib/containers '${{ env.BOOTC_IMAGE }}' \
             /usr/libexec/bootc-base-imagectl rechunk --max-layers 128 \
-            localhost/new-image:raw localhost/new-image:rechunked
+            new-image:raw new-image:rechunked
 
       - name: Push image
         uses: Wandalen/wretry.action/main@v3
         with:
           command: |
             set -eux -o pipefail
-            version_full='${{ steps.params.outputs.version }}'
-            version_major='${{ steps.params.outputs.version_major }}'
+            version_full="$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')"
+            version_major="$(echo "$version_full" | cut -d'.' -f1)"
             if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
               tags=("$version_major.pr-${{ github.event.number }}.build-${{ github.run_number }}" "$version_major.pr-${{ github.event.number }}")
             else
               tags=("$version_full" "$version_major.build-${{ github.run_number }}" "$version_major" 'latest')
             fi
-            source_image='containers-storage:localhost/new-image:rechuked'
+            source_image='containers-storage:new-image:rechuked'
             for tag in "${tags[@]}"; do
               dest_image="docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
               sudo skopeo copy "$source_image" "$dest_image"
