@@ -90,7 +90,7 @@ jobs:
               tags=("$version_full" "$version_major.build-${{ github.run_number }}" "$version_major" 'latest')
             fi
             source_image='containers-storage:localhost/new-image:rechunked'
-            compression_args=(--dest-compress-format='zstd' --dest-compress-level=3)
+            compression_args=(--dest-compress-format='zstd' --dest-compress-level=3 --dest-force-compress-format)
             for tag in "${tags[@]}"; do
               dest_image="docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
               sudo skopeo copy "${compression_args[@]}" "$source_image" "$dest_image"
