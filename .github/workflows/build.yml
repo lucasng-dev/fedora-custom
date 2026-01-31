@@ -19,7 +19,6 @@ on:
 env:
   UPSTREAM_IMAGE: quay.io/fedora-ostree-desktops/silverblue:43
   BOOTC_IMAGE: quay.io/fedora/fedora-bootc:43
-  PREVIOUS_IMAGE: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:43
 
 jobs:
   build:
@@ -74,9 +73,8 @@ jobs:
           # https://coreos.github.io/rpm-ostree/build-chunked-oci/
           # https://github.com/coreos/rpm-ostree/blob/main/rust/src/container.rs
           sudo podman run --rm --privileged -v /var/lib/containers:/var/lib/containers '${{ env.BOOTC_IMAGE }}' \
-            rpm-ostree experimental compose build-chunked-oci --bootc --format-version=2 --max-layers=128 \
-              --compare-with-build='${{ env.PREVIOUS_IMAGE }}' \
-              --from=localhost/new-image:raw --output=containers-storage:localhost/new-image:rechunked
+            /usr/libexec/bootc-base-imagectl rechunk --max-layers 128 \
+            localhost/new-image:raw localhost/new-image:rechunked
           sudo podman image list
 
       - name: Push image
