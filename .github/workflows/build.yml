@@ -19,6 +19,7 @@ on:
 env:
   UPSTREAM_IMAGE: quay.io/fedora-ostree-desktops/silverblue:43
   BOOTC_IMAGE: quay.io/fedora/fedora-bootc:43
+  PREVIOUS_IMAGE: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:43
 
 jobs:
   build:
@@ -69,9 +70,13 @@ jobs:
         run: |
           set -eux -o pipefail
           # https://docs.fedoraproject.org/en-US/bootc/building-from-scratch/#_optimizing_container_images
+          # https://gitlab.com/fedora/bootc/base-images/-/blob/main/bootc-base-imagectl
+          # https://coreos.github.io/rpm-ostree/build-chunked-oci/
+          # https://github.com/coreos/rpm-ostree/blob/main/rust/src/container.rs
           sudo podman run --rm --privileged -v /var/lib/containers:/var/lib/containers '${{ env.BOOTC_IMAGE }}' \
-            /usr/libexec/bootc-base-imagectl rechunk --max-layers 128 \
-            localhost/new-image:raw localhost/new-image:rechunked
+            rpm-ostree experimental compose build-chunked-oci --bootc --format-version=2 --max-layers=128 \
+              --compare-with-build='${{ env.PREVIOUS_IMAGE }}' \
+              --from=localhost/new-image:raw --output=containers-storage:localhost/new-image:rechunked
           sudo podman image list
 
       - name: Push image
@@ -86,9 +91,11 @@ jobs:
             else
               tags=("$version_full" "$version_major.build-${{ github.run_number }}" "$version_major" 'latest')
             fi
-            source_image="containers-storage:localhost/new-image:rechunked"
+            source_image='localhost/new-image:rechunked'
+            compression_args=(--dest-compress-format='zstd' --dest-compress-level=3)
             for tag in "${tags[@]}"; do
               dest_image="docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
-              sudo skopeo copy "$source_image" "$dest_image"
+              sudo skopeo copy "${compression_args[@]}" "$source_image" "$dest_image"
               source_image="$dest_image" # uses the pushed image as source for the next tag
+              compression_args=()        # pushed image is already compressed, no need to do it again
             done
