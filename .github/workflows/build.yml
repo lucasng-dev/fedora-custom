@@ -81,7 +81,7 @@ jobs:
           # https://coreos.github.io/rpm-ostree/build-chunked-oci/
           # https://github.com/coreos/rpm-ostree/blob/main/rust/src/container.rs
           sudo podman run --rm --privileged -v /var/lib/containers:/var/lib/containers '${{ env.BOOTC_IMAGE }}' \
-            /usr/libexec/bootc-base-imagectl rechunk --max-layers 128 \
+            /usr/libexec/bootc-base-imagectl rechunk --max-layers=256 \
             localhost/new-image:raw localhost/new-image:rechunked
           sudo podman image list
 

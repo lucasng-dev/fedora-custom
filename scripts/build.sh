@@ -149,9 +149,9 @@ ln -vsrT /usr/bin/bison /usr/bin/yacc
 
 # ostree custom layers - https://coreos.github.io/rpm-ostree/build-chunked-oci/#assigning-files-to-specific-layers
 setfattr -n user.components -v 'layer-1password' /opt/1Password
+setfattr -n user.components -v 'layer-chrome' /opt/google/chrome
 setfattr -n user.components -v 'layer-code' /usr/share/code
 setfattr -n user.components -v 'layer-etc' /etc /usr/lib/{fedora-release,os-release,group,passwd}
 setfattr -n user.components -v 'layer-fontconfig' /usr/lib/fontconfig
-setfattr -n user.components -v 'layer-google' /opt/google
 setfattr -n user.components -v 'layer-onedrivegui' /usr/lib/OneDriveGUI
 setfattr -n user.components -v 'layer-usrlocal' /usr/lib/usrlocal
