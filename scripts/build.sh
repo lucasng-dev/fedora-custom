@@ -148,10 +148,10 @@ echo 'g onepassword-cli 1791' >/usr/lib/sysusers.d/onepassword-cli.conf
 ln -vsrT /usr/bin/bison /usr/bin/yacc
 
 # ostree custom layers - https://coreos.github.io/rpm-ostree/build-chunked-oci/#assigning-files-to-specific-layers
-setfattr -n user.components -v 'opt-1password' /opt/1Password
-setfattr -n user.components -v 'opt-google' /opt/google
-setfattr -n user.components -v 'usr-etc' /usr/etc /usr/lib/{fedora-release,os-release,group,passwd}
-setfattr -n user.components -v 'usr-lib-fontconfig' /usr/lib/fontconfig
-setfattr -n user.components -v 'usr-lib-onedrivegui' /usr/lib/OneDriveGUI
-setfattr -n user.components -v 'usr-lib-usrlocal' /usr/lib/usrlocal
-setfattr -n user.components -v 'usr-share-code' /usr/share/code
+setfattr -n user.components -v 'layer-1password' /opt/1Password
+setfattr -n user.components -v 'layer-code' /usr/share/code
+setfattr -n user.components -v 'layer-etc' /etc /usr/lib/{fedora-release,os-release,group,passwd}
+setfattr -n user.components -v 'layer-fontconfig' /usr/lib/fontconfig
+setfattr -n user.components -v 'layer-google' /opt/google
+setfattr -n user.components -v 'layer-onedrivegui' /usr/lib/OneDriveGUI
+setfattr -n user.components -v 'layer-usrlocal' /usr/lib/usrlocal
