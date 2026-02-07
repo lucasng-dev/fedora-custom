@@ -107,9 +107,8 @@ systemctl --global enable flatpak-user-update.timer
 grep -ERl '^Exec.*\bgnome-software\b' /etc/xdg/autostart/ /usr/share/dbus-1/services/ /usr/lib/systemd/user/ | xargs rm -vf
 grep -ERl '^Exec.*\bgnome-software\b' /usr/share/applications/ | xargs sed -Ei '/^DBusActivatable/d'
 
-# configure flatpak repos
+# disable fedora flatpak repos
 systemctl disable flatpak-add-fedora-repos.service
-curl -fsSL -o /etc/flatpak/remotes.d/flathub.flatpakrepo https://flathub.org/repo/flathub.flatpakrepo
 
 # enable container services
 systemctl enable docker.service
