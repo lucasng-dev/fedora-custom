@@ -40,7 +40,7 @@ dnf install -y --allowerasing \
 	zsh eza bat less micro{,-default-editor} nano vim neovim mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux screen \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
-	openssl curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump \
+	openssl curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump wol \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools sqlite \
 	cmatrix lolcat fastfetch onefetch starship topgrade \
