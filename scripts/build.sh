@@ -44,7 +44,7 @@ dnf install -y --allowerasing \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools sqlite \
 	cmatrix lolcat fastfetch onefetch starship topgrade \
-	distrobox podman docker{,-compose} \
+	distrobox podman docker{,-compose} kubernetes helm \
 	git{,-credential-manager,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
 	ShellCheck shfmt direnv mise \
 	kernel-{devel,headers} gcc{,-c++} {,c}make just autoconf automake meson ninja bison m4 patch texinfo \
@@ -65,6 +65,9 @@ dnf remove -y \
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
 find ublue-packages/packages -type f -name '*.spec' -delete
 cp -va ublue-packages/packages/ublue-os-update-services/src/. /
+
+# install minikube
+dnf install -y https://storage.googleapis.com/minikube/releases/latest/minikube-latest.x86_64.rpm
 
 # install veracrypt from github releases
 curl -fsSL https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest | jq -r '.assets[].browser_download_url' |
