@@ -52,7 +52,7 @@ dnf install -y --allowerasing \
 	python3{,-pip} java-devel dotnet-sdk-10.0 golang rust{,up,-src,fmt,-analyzer} cargo clippy \
 	android-tools scrcpy code zed{,-cli} \
 	gparted parted btrbk snapper btrfs-assistant duperemove trash-cli \
-	cups-pdf gnome-themes-extra gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer sushi \
+	cups-pdf adw-gtk3-theme gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer sushi \
 	dconf-editor file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse \
 	openrgb steam-devices sshuttle syncthing samba \
 	onedrive python3-{requests,pyside6} \
