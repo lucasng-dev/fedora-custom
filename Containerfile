@@ -2,7 +2,8 @@ ARG UPSTREAM_IMAGE=quay.io/fedora-ostree-desktops/silverblue:43
 
 FROM ${UPSTREAM_IMAGE}
 
-COPY --parents rootfs scripts /tmp/sources/
+COPY rootfs /tmp/sources/rootfs
+COPY scripts/build.sh /tmp/sources/scripts/
 
 RUN set -eux -o pipefail && cd /tmp/sources && \
     systemd-tmpfiles --create --prefix=/var --prefix=/usr/local && \
