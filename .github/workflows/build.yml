@@ -17,8 +17,8 @@ on:
       - "**.md"
 
 env:
-  UPSTREAM_IMAGE: quay.io/fedora-ostree-desktops/silverblue:43
-  BOOTC_IMAGE: quay.io/fedora/fedora-bootc:43
+  UPSTREAM_IMAGE: quay.io/fedora-ostree-desktops/silverblue:44
+  BOOTC_IMAGE: quay.io/fedora/fedora-bootc:44
 
 jobs:
   build:
