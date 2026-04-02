@@ -1,4 +1,4 @@
-ARG UPSTREAM_IMAGE=quay.io/fedora-ostree-desktops/silverblue:43
+ARG UPSTREAM_IMAGE=quay.io/fedora-ostree-desktops/silverblue:44
 
 FROM ${UPSTREAM_IMAGE}
 

@@ -43,14 +43,14 @@ dnf install -y --allowerasing \
 	openssl curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump wol \
 	whois iperf3 speedtest-cli wireguard-tools firewall-config \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools binwalk sqlite \
-	cmatrix lolcat fastfetch onefetch starship topgrade \
+	cmatrix lolcat fastfetch onefetch `#starship` topgrade \
 	distrobox podman docker{,-compose} kubernetes-client helm \
 	git{,-credential-manager,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
 	ShellCheck shfmt direnv mise \
 	kernel-{devel,headers} gcc{,-c++} {,c}make just autoconf automake meson ninja bison m4 patch texinfo \
 	nodejs{,-npm} yarnpkg pnpm deno bun-bin \
 	python3{,-pip} java-devel dotnet-sdk-10.0 golang rust{,up,-src,fmt,-analyzer} cargo clippy \
-	android-tools scrcpy code zed{,-cli} \
+	android-tools `#scrcpy` code zed{,-cli} \
 	gparted parted btrbk snapper btrfs-assistant duperemove trash-cli \
 	cups-pdf adw-gtk3-theme gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer sushi \
 	dconf-editor file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse \
@@ -65,6 +65,13 @@ dnf remove -y \
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
 find ublue-packages/packages -type f -name '*.spec' -delete
 cp -va ublue-packages/packages/ublue-os-update-services/src/. /
+
+# install starship from github releases
+curl -fsSL -o starship.tar.gz https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz
+mkdir starship && bsdtar -xof starship.tar.gz -C starship
+mv starship/starship /usr/bin/starship
+chmod +x /usr/bin/starship
+starship --version
 
 # install minikube
 dnf install -y https://storage.googleapis.com/minikube/releases/latest/minikube-latest.x86_64.rpm
