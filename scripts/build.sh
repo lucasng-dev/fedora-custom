@@ -51,7 +51,7 @@ dnf install -y --allowerasing \
 	nodejs{,-npm} yarnpkg pnpm deno bun-bin \
 	python3{,-pip} java-devel dotnet-sdk-10.0 golang rust{,up,-src,fmt,-analyzer} cargo clippy \
 	android-tools code zed{,-cli} \
-	gparted parted btrbk snapper btrfs-assistant duperemove trash-cli \
+	gparted parted btrbk snapper btrfs-assistant duperemove trash-cli fuse-libs fuse3-libs \
 	cups-pdf adw-gtk3-theme gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer sushi \
 	dconf-editor file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse \
 	openrgb steam-devices sshuttle syncthing samba \
