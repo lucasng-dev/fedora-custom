@@ -25,23 +25,22 @@ jobs:
     name: Build and push image
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash -eux -o pipefail {0}
     permissions:
       contents: read
       packages: write
 
     steps:
       - name: Show runner info
-        shell: bash
         run: |
-          set -eux -o pipefail
           sudo podman --version
           sudo buildah --version
           sudo skopeo --version
 
       - name: Free up disk space
-        shell: bash
         run: |
-          set -eux -o pipefail
           # https://github.com/actions/runner-images/issues/10386
           sudo df -h
           sudo rm -rf /opt /usr/local /usr/share/{boost,dotnet,swift} /usr/lib/{google-cloud-sdk,jvm}
@@ -51,31 +50,24 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Container registry login
-        shell: bash
         run: |
-          set -eu -o pipefail
+          { set +x; } &>/dev/null
           sudo skopeo login --username '${{ github.actor }}' --password '${{ secrets.GITHUB_TOKEN }}' ghcr.io
 
       - name: Pull base images
-        uses: Wandalen/wretry.action/main@v3
-        with:
-          command: |
-            set -eux -o pipefail
-            sudo podman pull '${{ env.UPSTREAM_IMAGE }}' '${{ env.BOOTC_IMAGE }}'
-            sudo podman image list
+        run: |
+          retry() { "$@" || "$@"; }
+          retry sudo podman pull '${{ env.UPSTREAM_IMAGE }}' '${{ env.BOOTC_IMAGE }}'
+          sudo podman image list
 
       - name: Build image
-        uses: Wandalen/wretry.action/main@v3
-        with:
-          command: |
-            set -eux -o pipefail
-            sudo buildah build -t localhost/new-image:raw -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' .
-            sudo podman image list
+        run: |
+          retry() { "$@" || "$@"; }
+          retry sudo buildah build -t localhost/new-image:raw -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' .
+          sudo podman image list
 
       - name: Rechunk image
-        shell: bash
         run: |
-          set -eux -o pipefail
           # https://docs.fedoraproject.org/en-US/bootc/building-from-scratch/#_optimizing_container_images
           # https://gitlab.com/fedora/bootc/base-images/-/blob/main/bootc-base-imagectl
           # https://coreos.github.io/rpm-ostree/build-chunked-oci/
@@ -86,22 +78,20 @@ jobs:
           sudo podman image list
 
       - name: Push image
-        uses: Wandalen/wretry.action/main@v3
-        with:
-          command: |
-            set -eux -o pipefail
-            version_full="$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')"
-            version_major="$(echo "$version_full" | cut -d'.' -f1)"
-            if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
-              tags=("$version_major.pr-${{ github.event.number }}.build-${{ github.run_number }}" "$version_major.pr-${{ github.event.number }}")
-            else
-              tags=("$version_full" "$version_major.build-${{ github.run_number }}" "$version_major" 'latest')
-            fi
-            source_image='containers-storage:localhost/new-image:rechunked'
-            compression_args=(--dest-compress-format='zstd' --dest-compress-level=9)
-            for tag in "${tags[@]}"; do
-              dest_image="docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
-              sudo skopeo copy "${compression_args[@]}" "$source_image" "$dest_image"
-              source_image="$dest_image" # uses the pushed image as source for the next tag
-              compression_args=()        # pushed image is already compressed, no need to do it again
-            done
+        run: |
+          retry() { "$@" || "$@"; }
+          version_full="$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')"
+          version_major="$(echo "$version_full" | cut -d'.' -f1)"
+          if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
+            tags=("$version_major.pr-${{ github.event.number }}.build-${{ github.run_number }}" "$version_major.pr-${{ github.event.number }}")
+          else
+            tags=("$version_full" "$version_major.build-${{ github.run_number }}" "$version_major" 'latest')
+          fi
+          source_image='containers-storage:localhost/new-image:rechunked'
+          compression_args=(--dest-compress-format='zstd' --dest-compress-level=9)
+          for tag in "${tags[@]}"; do
+            dest_image="docker://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:$tag"
+            retry sudo skopeo copy "${compression_args[@]}" "$source_image" "$dest_image"
+            source_image="$dest_image" # uses the pushed image as source for the next tag
+            compression_args=()        # pushed image is already compressed, no need to do it again
+          done
