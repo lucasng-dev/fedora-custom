@@ -93,7 +93,7 @@ mkdir canon && bsdtar -xof canon.tar.gz -C canon --strip-components=1
 dnf install -y canon/packages/cnijfilter2-*.x86_64.rpm
 
 # install warsaw: https://seg.bb.com.br/duvidas.html?question=10
-curl -fsSL -o warsaw.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedora/warsaw_setup64.run
+curl -fsSL -o warsaw.run https://guardiao.itau.com.br/warsaw/warsaw_fedora.run
 mkdir warsaw && bsdtar -xof warsaw.run -C warsaw --strip-components=1
 echo '%_pkgverify_level none' >/etc/rpm/macros.verify # https://bugzilla.redhat.com/show_bug.cgi?id=1830347#c15
 dnf install -y warsaw/warsaw-*.x86_64.rpm
