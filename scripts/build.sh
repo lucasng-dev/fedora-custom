@@ -92,16 +92,6 @@ echo '55d807ef696053a3ae4f5bb7dd99d063d240bb13c95081806ed5ea3e81464876 canon.tar
 mkdir canon && bsdtar -xof canon.tar.gz -C canon --strip-components=1
 dnf install -y canon/packages/cnijfilter2-*.x86_64.rpm
 
-# install warsaw: https://seg.bb.com.br/duvidas.html?question=10
-curl -fsSL -o warsaw.run https://guardiao.itau.com.br/warsaw/warsaw_fedora.run
-mkdir warsaw && bsdtar -xof warsaw.run -C warsaw --strip-components=1
-echo '%_pkgverify_level none' >/etc/rpm/macros.verify # https://bugzilla.redhat.com/show_bug.cgi?id=1830347#c15
-dnf install -y warsaw/warsaw-*.x86_64.rpm
-rm -vf /etc/rpm/macros.verify
-systemctl disable warsaw.service
-# https://aur.archlinux.org/packages/warsaw-bin#comment-1014000
-dnf install -y execstack && execstack -s /usr/local/bin/warsaw/core
-
 # enable update services
 systemctl enable rpm-ostreed-automatic.timer
 systemctl enable flatpak-system-update.timer
