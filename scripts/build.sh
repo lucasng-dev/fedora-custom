@@ -98,13 +98,7 @@ mkdir warsaw && bsdtar -xof warsaw.run -C warsaw --strip-components=1
 echo '%_pkgverify_level none' >/etc/rpm/macros.verify # https://bugzilla.redhat.com/show_bug.cgi?id=1830347#c15
 dnf install -y warsaw/warsaw-*.x86_64.rpm
 rm -vf /etc/rpm/macros.verify
-sed -Ei -e 's@/var/run/@/run/@g' -e 's@^ExecStart=(.*)$@ExecStart=/bin/bash -c "exec \1"@g' \
-	/usr/lib/systemd/system/warsaw.service
-# shellcheck disable=SC2016
-sed -E -e 's/multi-user.target/graphical-session.target/g' -e '/^\[Unit\]/a\ConditionUser=!@system' -e 's@/run/@%t/@g' \
-	/usr/lib/systemd/system/warsaw.service >/usr/lib/systemd/user/warsaw.service
-systemctl enable warsaw.service
-systemctl --global enable warsaw.service
+systemctl disable warsaw.service
 # https://aur.archlinux.org/packages/warsaw-bin#comment-1014000
 dnf install -y execstack && execstack -s /usr/local/bin/warsaw/core
 
