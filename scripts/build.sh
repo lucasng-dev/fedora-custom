@@ -41,7 +41,7 @@ dnf install -y --allowerasing \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux screen \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	openssl curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump wol \
-	whois iperf3 speedtest-cli wireguard-tools firewall-config \
+	nss-tools whois iperf3 speedtest-cli wireguard-tools firewall-config \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools binwalk sqlite \
 	cmatrix lolcat fastfetch onefetch topgrade \
 	distrobox podman docker{,-compose} kubernetes-client helm \
@@ -59,7 +59,7 @@ dnf install -y --allowerasing \
 	ms-core-fonts firacode-nerd-fonts \
 	google-chrome-stable brave-browser 1password{,-cli}
 dnf remove -y \
-	gnome-software-fedora-langpacks gnome-terminal ptyxis firefox
+	gnome-software-fedora-langpacks gnome-terminal ptyxis
 
 # install config files from ublue: https://github.com/ublue-os/packages
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
