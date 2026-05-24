@@ -16,10 +16,6 @@ on:
     paths-ignore:
       - "**.md"
 
-env:
-  UPSTREAM_IMAGE: quay.io/fedora-ostree-desktops/silverblue:44
-  BOOTC_IMAGE: quay.io/fedora/fedora-bootc:44
-
 jobs:
   build:
     name: Build and push image
@@ -57,30 +53,31 @@ jobs:
       - name: Pull base images
         run: |
           retry() { "$@" || "$@"; }
-          retry sudo podman pull '${{ env.UPSTREAM_IMAGE }}' '${{ env.BOOTC_IMAGE }}'
+          base_images=($(grep -E '^FROM\s.*/.*' Containerfile | awk '{print $2}'))
+          retry sudo podman pull "${base_images[@]}"
           sudo podman image list
 
       - name: Build image
         run: |
           retry() { "$@" || "$@"; }
-          retry sudo buildah build -t localhost/new-image:raw -f Containerfile --build-arg UPSTREAM_IMAGE='${{ env.UPSTREAM_IMAGE }}' .
+          retry sudo buildah build -t localhost/new-image:raw -f Containerfile .
           sudo podman image list
 
       - name: Rechunk image
         run: |
+          # https://coreos.github.io/rpm-ostree/build-chunked-oci/
           # https://docs.fedoraproject.org/en-US/bootc/building-from-scratch/#_optimizing_container_images
           # https://gitlab.com/fedora/bootc/base-images/-/blob/main/bootc-base-imagectl
-          # https://coreos.github.io/rpm-ostree/build-chunked-oci/
           # https://github.com/coreos/rpm-ostree/blob/main/rust/src/container.rs
-          sudo podman run --rm --privileged -v /var/lib/containers:/var/lib/containers '${{ env.BOOTC_IMAGE }}' \
-            /usr/libexec/bootc-base-imagectl rechunk --max-layers=120 \
-            localhost/new-image:raw localhost/new-image:rechunked
+          sudo podman run --rm --privileged --volume /var/lib/containers:/var/lib/containers localhost/new-image:raw \
+            rpm-ostree compose build-chunked-oci --bootc --format-version=2 --max-layers=256 \
+            --from=localhost/new-image:raw --output=containers-storage:localhost/new-image:rechunked
           sudo podman image list
 
       - name: Push image
         run: |
           retry() { "$@" || "$@"; }
-          version_full="$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' '${{ env.UPSTREAM_IMAGE }}')"
+          version_full="$(sudo podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' localhost/new-image:rechunked)"
           version_major="$(echo "$version_full" | cut -d'.' -f1)"
           if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
             tags=("$version_major.pr-${{ github.event.number }}.build-${{ github.run_number }}" "$version_major.pr-${{ github.event.number }}")
