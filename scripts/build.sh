@@ -135,7 +135,7 @@ sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{terra,google-chrome,brave-bro
 
 # post-install (1password)
 rm -vf /usr/lib/sysusers.d/*onepassword*.conf 2>/dev/null || true
-tee /usr/lib/sysusers.d/onepassword.conf <<-EOF
+tee /usr/lib/sysusers.d/onepassword.conf <<-'EOF'
 	g onepassword 1790
 	g onepassword-cli 1791
 	g onepassword-mcp 1792
