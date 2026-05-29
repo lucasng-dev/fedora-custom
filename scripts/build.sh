@@ -32,6 +32,7 @@ dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
 # pre-install (1password): https://github.com/bsherman/ublue-custom/blob/main/build_files/1password.sh
 groupadd -g 1790 onepassword
 groupadd -g 1791 onepassword-cli
+groupadd -g 1792 onepassword-mcp
 
 # install rpm packages
 dnf install -y --allowerasing \
@@ -133,9 +134,12 @@ sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/ap
 sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{terra,google-chrome,brave-browser,1password,vscode}.repo
 
 # post-install (1password)
-rm -vf /usr/lib/sysusers.d/*onepassword*.conf &>/dev/null || true
-echo 'g onepassword 1790' >/usr/lib/sysusers.d/onepassword.conf
-echo 'g onepassword-cli 1791' >/usr/lib/sysusers.d/onepassword-cli.conf
+rm -vf /usr/lib/sysusers.d/*onepassword*.conf 2>/dev/null || true
+tee /usr/lib/sysusers.d/onepassword.conf <<-EOF
+	g onepassword 1790
+	g onepassword-cli 1791
+	g onepassword-mcp 1792
+EOF
 
 # post-install
 ln -vsrT /usr/bin/bison /usr/bin/yacc
