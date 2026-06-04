@@ -58,7 +58,7 @@ dnf install -y --allowerasing \
 	openrgb steam-devices sshuttle syncthing samba \
 	onedrive python3-{requests,pyside6} \
 	ms-core-fonts firacode-nerd-fonts \
-	google-chrome-stable brave-browser 1password{,-cli}
+	google-chrome-stable brave-origin 1password{,-cli}
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
 
