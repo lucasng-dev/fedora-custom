@@ -70,7 +70,7 @@ jobs:
           # https://gitlab.com/fedora/bootc/base-images/-/blob/main/bootc-base-imagectl
           # https://github.com/coreos/rpm-ostree/blob/main/rust/src/container.rs
           sudo podman run --rm --privileged --volume /var/lib/containers:/var/lib/containers localhost/new-image:raw \
-            rpm-ostree compose build-chunked-oci --bootc --format-version=2 --max-layers=256 \
+            rpm-ostree compose build-chunked-oci --bootc --format-version=2 --max-layers=120 \
             --from=localhost/new-image:raw --output=containers-storage:localhost/new-image:rechunked
           sudo podman image list
 
