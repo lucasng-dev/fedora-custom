@@ -58,13 +58,9 @@ dnf install -y --allowerasing \
 	openrgb steam-devices sshuttle syncthing samba \
 	onedrive python3-{requests,pyside6} \
 	ms-core-fonts firacode-nerd-fonts \
-	google-chrome-stable brave-origin 1password{,-cli}
+	google-chrome-stable brave-origin 1password{,-cli} tailscale
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
-
-# install netbird - https://github.com/netbirdio/netbird/issues/5068
-dnf install -y netbird{,-ui} --setopt='tsflags=noscripts'
-netbird service install || true
 
 # install config files from ublue: https://github.com/ublue-os/packages
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
@@ -119,6 +115,9 @@ systemctl --global enable podman-restart.service
 # enable ssh services
 systemctl enable sshd.service
 
+# enable tailscale services
+systemctl enable tailscaled.service
+
 # enable virtualization services
 systemctl enable libvirtd.service
 
@@ -135,7 +134,7 @@ EOF
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
 # disable 3rd party repos
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{1password,brave-browser,google-chrome,netbird,terra,vscode}.repo
+sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{1password,brave-browser,google-chrome,tailscale,terra,vscode}.repo
 
 # post-install (1password)
 rm -vf /usr/lib/sysusers.d/*onepassword*.conf 2>/dev/null || true
