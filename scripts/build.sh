@@ -62,12 +62,15 @@ dnf install -y --allowerasing \
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
 
+# install netbird - https://github.com/netbirdio/netbird/issues/5068
+dnf install -y netbird{,-ui} --setopt='tsflags=noscripts'
+
 # install config files from ublue: https://github.com/ublue-os/packages
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
 find ublue-packages/packages -type f -name '*.spec' -delete
 cp -va ublue-packages/packages/ublue-os-update-services/src/. /
 
-# install starship from github releases
+# install starship
 curl -fsSL -o starship.tar.gz https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz
 mkdir starship && bsdtar -xof starship.tar.gz -C starship
 mv -v starship/starship /usr/bin/starship
@@ -77,11 +80,11 @@ starship --version
 # install minikube
 dnf install -y https://storage.googleapis.com/minikube/releases/latest/minikube-latest.x86_64.rpm
 
-# install veracrypt from github releases
+# install veracrypt
 curl -fsSL https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest | jq -r '.assets[].browser_download_url' |
-	grep -Ei '/veracrypt-[^/]+-fedora-[^/]+-x86_64.rpm$' | grep -Eiv 'console' | head -n1 | xargs dnf install -y
+	grep -Ei '/veracrypt-[^/]+-fedora-[^/]+-x86_64\.rpm$' | grep -Eiv 'console' | head -n1 | xargs dnf install -y
 
-# install onedrive-gui from github sources
+# install onedrive-gui
 curl -fsSL https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
 	xargs curl -fsSL -o onedrive-gui.tar.gz
 mkdir onedrive-gui && bsdtar -xof onedrive-gui.tar.gz -C onedrive-gui --strip-components=1
@@ -131,7 +134,7 @@ EOF
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
 # disable 3rd party repos
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{terra,google-chrome,brave-browser,1password,vscode}.repo
+sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{1password,brave-browser,google-chrome,netbird,terra,vscode}.repo
 
 # post-install (1password)
 rm -vf /usr/lib/sysusers.d/*onepassword*.conf 2>/dev/null || true
