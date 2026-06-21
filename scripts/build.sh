@@ -64,6 +64,7 @@ dnf remove -y \
 
 # install netbird - https://github.com/netbirdio/netbird/issues/5068
 dnf install -y netbird{,-ui} --setopt='tsflags=noscripts'
+netbird service install || true
 
 # install config files from ublue: https://github.com/ublue-os/packages
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
