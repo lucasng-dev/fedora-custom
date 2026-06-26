@@ -67,6 +67,17 @@ git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
 find ublue-packages/packages -type f -name '*.spec' -delete
 cp -va ublue-packages/packages/ublue-os-update-services/src/. /
 
+# install wifiman: https://gist.github.com/catchin/e2371919c4c1a23b5afaca6b6b6b3b76
+dnf install -y net-tools iw resolvconf libayatana-appindicator3 webkit2gtk4.1 gtk3 # dependencies
+curl -fsSL https://desktop.wifiman.com/wifiman-desktop-linux-manifest.json | jq -r '.platforms[]' |
+	grep -E '\-amd64\.deb$' | head -n1 | xargs curl -fsSL -o wifiman-desktop.deb
+mkdir wifiman-desktop-deb && bsdtar -xof wifiman-desktop.deb -C wifiman-desktop-deb
+mkdir wifiman-desktop && bsdtar -xof wifiman-desktop-deb/data.tar.gz -C wifiman-desktop
+cp -va wifiman-desktop/usr/. /usr/
+mv -v /usr/lib/wifiman-desktop/wifiman-desktop.service /usr/lib/systemd/system/
+semanage fcontext -a -t bin_t /usr/lib/wifiman-desktop/wifiman-desktopd
+restorecon -v /usr/lib/wifiman-desktop/wifiman-desktopd
+
 # install starship
 curl -fsSL -o starship.tar.gz https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz
 mkdir starship && bsdtar -xof starship.tar.gz -C starship
@@ -117,6 +128,9 @@ systemctl enable sshd.service
 
 # enable tailscale services
 systemctl enable tailscaled.service
+
+# enable wifiman services
+systemctl enable wifiman-desktop.service
 
 # enable virtualization services
 systemctl enable libvirtd.service
