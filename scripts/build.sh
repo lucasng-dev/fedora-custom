@@ -55,7 +55,7 @@ dnf install -y --allowerasing \
 	gparted parted btrbk snapper btrfs-assistant duperemove trash-cli fuse-libs fuse3-libs \
 	cups-pdf adw-gtk3-theme gnome-tweaks tilix{,-nautilus} ffmpegthumbnailer sushi \
 	dconf-editor file-roller{,-nautilus} gnome-text-editor gnome-firmware seahorse \
-	openrgb steam-devices sshuttle syncthing samba \
+	openrgb steam-devices sshuttle syncthing rclone{,-browser} samba \
 	onedrive python3-{requests,pyside6} \
 	ms-core-fonts firacode-nerd-fonts \
 	google-chrome-stable brave-origin 1password{,-cli} tailscale
@@ -66,17 +66,6 @@ dnf remove -y \
 git clone --depth=1 https://github.com/ublue-os/packages.git ublue-packages
 find ublue-packages/packages -type f -name '*.spec' -delete
 cp -va ublue-packages/packages/ublue-os-update-services/src/. /
-
-# install wifiman: https://gist.github.com/catchin/e2371919c4c1a23b5afaca6b6b6b3b76
-dnf install -y net-tools iw resolvconf libayatana-appindicator3 webkit2gtk4.1 gtk3 # dependencies
-curl -fsSL https://desktop.wifiman.com/wifiman-desktop-linux-manifest.json | jq -r '.platforms[]' |
-	grep -E '\-amd64\.deb$' | head -n1 | xargs curl -fsSL -o wifiman-desktop.deb
-mkdir wifiman-desktop-deb && bsdtar -xof wifiman-desktop.deb -C wifiman-desktop-deb
-mkdir wifiman-desktop && bsdtar -xof wifiman-desktop-deb/data.tar.gz -C wifiman-desktop
-cp -va wifiman-desktop/usr/. /usr/
-mv -v /usr/lib/wifiman-desktop/wifiman-desktop.service /usr/lib/systemd/system/
-semanage fcontext -a -t bin_t /usr/lib/wifiman-desktop/wifiman-desktopd
-restorecon -v /usr/lib/wifiman-desktop/wifiman-desktopd
 
 # install starship
 curl -fsSL -o starship.tar.gz https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz
@@ -91,12 +80,18 @@ dnf install -y https://storage.googleapis.com/minikube/releases/latest/minikube-
 # install veracrypt
 curl -fsSL https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest | jq -r '.assets[].browser_download_url' |
 	grep -Ei '/veracrypt-[^/]+-fedora-[^/]+-x86_64\.rpm$' | grep -Eiv 'console' | head -n1 | xargs dnf install -y
+ln -vsrT /usr/lib64/libfuse3.so.4 /usr/lib64/libfuse3.so.3 || true
+
+# install insync
+dnf install -y \
+	"https://dl.insynchq.com/linux/desktop/fedora/$(rpm -E %fedora)" \
+	'https://dl.insynchq.com/linux/nautilus/rpm'
 
 # install onedrive-gui
 curl -fsSL https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
 	xargs curl -fsSL -o onedrive-gui.tar.gz
 mkdir onedrive-gui && bsdtar -xof onedrive-gui.tar.gz -C onedrive-gui --strip-components=1
-mv -v onedrive-gui/src /usr/lib/OneDriveGUI
+mv onedrive-gui/src /usr/lib/OneDriveGUI
 
 # install canon printer drivers: https://tw.canon/en/support/0101230101
 curl -fsSL -o canon.tar.gz https://gdlp01.c-wss.com/gds/1/0100012301/02/cnijfilter2-6.80-1-rpm.tar.gz
@@ -129,9 +124,6 @@ systemctl enable sshd.service
 # enable tailscale services
 systemctl enable tailscaled.service
 
-# enable wifiman services
-systemctl enable wifiman-desktop.service
-
 # enable virtualization services
 systemctl enable libvirtd.service
 
@@ -146,9 +138,6 @@ EOF
 
 # configure gnome-disk-image-mounter to mount writable by default
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
-
-# disable 3rd party repos
-sed -Ei '/^enabled=/c\enabled=0' /etc/yum.repos.d/{1password,brave-browser,google-chrome,tailscale,terra,vscode}.repo
 
 # post-install (1password)
 rm -vf /usr/lib/sysusers.d/*onepassword*.conf 2>/dev/null || true
