@@ -86,7 +86,7 @@ ln -vsrT /usr/lib64/libfuse3.so.4 /usr/lib64/libfuse3.so.3 || true
 dnf install -y \
 	"https://dl.insynchq.com/linux/desktop/fedora/$(rpm -E %fedora)" \
 	'https://dl.insynchq.com/linux/nautilus/rpm'
-sed -Ei 's|(os\.path\.realpath.*)|\1.replace("/var/home/", "/home")|g' /usr/share/nautilus-python/extensions/insync-nautilus-plugin.py
+sed -Ei 's|(os\.path\.realpath.*)|\1.replace("/var/home/", "/home/")|g' /usr/share/nautilus-python/extensions/insync-nautilus-plugin.py
 
 # install onedrive-gui
 curl -fsSL https://api.github.com/repos/bpozdena/OneDriveGUI/releases/latest | jq -r '.tarball_url' |
