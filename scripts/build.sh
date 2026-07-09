@@ -45,7 +45,8 @@ dnf install -y --allowerasing \
 	nss-tools whois iperf3 speedtest-cli wireguard-tools firewall-config \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools binwalk sqlite \
 	cmatrix lolcat fastfetch onefetch topgrade \
-	distrobox podman docker{,-compose} kubernetes-client helm \
+	docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
+	distrobox podman kubernetes-client helm \
 	git{,-credential-manager,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
 	ShellCheck shfmt direnv mise \
 	kernel-{devel,headers} gcc{,-c++} {,c}make just autoconf automake meson ninja bison m4 patch texinfo \
