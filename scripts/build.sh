@@ -149,5 +149,12 @@ tee /usr/lib/sysusers.d/onepassword.conf <<-'EOF'
 	g onepassword-mcp 1792
 EOF
 
+# post-install (docker)
+ln -vsrT /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose || true
+rm -vf /usr/lib/sysusers.d/*docker*.conf /usr/lib/sysusers.d/*moby*.conf 2>/dev/null || true
+tee /usr/lib/sysusers.d/docker.conf <<-'EOF'
+	g docker -
+EOF
+
 # post-install
 ln -vsrT /usr/bin/bison /usr/bin/yacc
