@@ -41,9 +41,9 @@ dnf install -y --allowerasing \
 	zsh eza bat less micro{,-default-editor} nano vim neovim mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux screen \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
-	openssl curl wget net-tools telnet traceroute bind-utils mtr nmap netcat tcpdump wol \
+	openssl curl wget net-tools iw telnet traceroute bind-utils mtr nmap netcat tcpdump wol \
 	nss-tools whois iperf3 speedtest-cli wireguard-tools firewall-config \
-	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools binwalk sqlite \
+	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools binwalk sqlite alien \
 	cmatrix lolcat fastfetch onefetch topgrade \
 	docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
 	distrobox podman kubernetes-client helm \
@@ -59,7 +59,8 @@ dnf install -y --allowerasing \
 	openrgb steam-devices sshuttle syncthing rclone{,-browser} samba \
 	onedrive python3-{requests,pyside6} \
 	ms-core-fonts firacode-nerd-fonts \
-	google-chrome-stable brave-origin 1password{,-cli} tailscale
+	google-chrome-stable brave-origin 1password{,-cli} tailscale \
+	libayatana-appindicator3 webkit2gtk4.1 `#wifiman`
 dnf remove -y \
 	gnome-software-fedora-langpacks gnome-terminal ptyxis
 
