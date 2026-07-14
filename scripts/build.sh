@@ -43,7 +43,7 @@ dnf install -y --allowerasing \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	openssl curl wget net-tools iw telnet traceroute bind-utils mtr nmap netcat tcpdump wol \
 	nss-tools whois iperf3 speedtest-cli wireguard-tools firewall-config \
-	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools binwalk sqlite alien \
+	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools binwalk sqlite alien rpmrebuild \
 	cmatrix lolcat fastfetch onefetch topgrade \
 	docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
 	distrobox podman kubernetes-client helm \
