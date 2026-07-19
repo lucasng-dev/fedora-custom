@@ -29,6 +29,9 @@ dnf install -y libdvdcss
 dnf install -y rpmfusion-nonfree-release-tainted
 dnf --repo='rpmfusion-nonfree-tainted' install -y '*-firmware'
 
+# pre-install (docker)
+groupadd -g 913 docker
+
 # pre-install (1password): https://github.com/bsherman/ublue-custom/blob/main/build_files/1password.sh
 groupadd -g 1790 onepassword
 groupadd -g 1791 onepassword-cli
@@ -115,7 +118,7 @@ grep -ERl '^Exec.*\bgnome-software\b' /usr/share/applications/ | xargs sed -Ei '
 systemctl disable flatpak-add-fedora-repos.service
 
 # enable container services
-systemctl enable docker.service
+systemctl enable docker.{service,socket}
 systemctl enable podman.socket
 systemctl --global enable podman.socket
 systemctl enable podman-restart.service
@@ -154,7 +157,7 @@ EOF
 ln -vsrT /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose || true
 rm -vf /usr/lib/sysusers.d/*docker*.conf /usr/lib/sysusers.d/*moby*.conf 2>/dev/null || true
 tee /usr/lib/sysusers.d/docker.conf <<-'EOF'
-	g docker -
+	g docker 913
 EOF
 
 # post-install
