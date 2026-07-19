@@ -145,19 +145,19 @@ EOF
 # configure gnome-disk-image-mounter to mount writable by default
 sed -Ei 's/(^Exec=.*\bgnome-disk-image-mounter\b)/\1 --writable/g' /usr/share/applications/gnome-disk-image-mounter.desktop
 
+# post-install (docker)
+rm -vf /usr/lib/sysusers.d/*docker*.conf /usr/lib/sysusers.d/*moby*.conf 2>/dev/null || true
+tee /usr/lib/sysusers.d/docker.conf <<-'EOF'
+	g docker 913
+EOF
+ln -vsrT /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose || true
+
 # post-install (1password)
 rm -vf /usr/lib/sysusers.d/*onepassword*.conf 2>/dev/null || true
 tee /usr/lib/sysusers.d/onepassword.conf <<-'EOF'
 	g onepassword 1790
 	g onepassword-cli 1791
 	g onepassword-mcp 1792
-EOF
-
-# post-install (docker)
-ln -vsrT /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose || true
-rm -vf /usr/lib/sysusers.d/*docker*.conf /usr/lib/sysusers.d/*moby*.conf 2>/dev/null || true
-tee /usr/lib/sysusers.d/docker.conf <<-'EOF'
-	g docker 913
 EOF
 
 # post-install
