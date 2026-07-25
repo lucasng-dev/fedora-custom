@@ -45,11 +45,11 @@ dnf install -y --allowerasing \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux screen \
 	btop htop nvtop inxi lshw lm_sensors xclip xsel wl-clipboard expect \
 	openssl curl wget net-tools iw telnet traceroute bind-utils mtr nmap netcat tcpdump wol \
-	nss-tools whois iperf3 speedtest-cli wireguard-tools firewall-config \
+	nss-tools whois iperf3 speedtest-cli wireguard-tools firewall-config freerdp \
 	bsdtar zstd p7zip{,-plugins} zip unzip unrar unar squashfs-tools binwalk sqlite alien rpmrebuild \
 	cmatrix lolcat fastfetch onefetch topgrade \
 	docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
-	distrobox podman kubernetes-client helm \
+	distrobox podman{,-compose} kubernetes-client helm \
 	git{,-credential-manager,-lfs,-delta,-filter-repo,-extras} gh lazygit jq yq stow \
 	ShellCheck shfmt direnv mise \
 	kernel-{devel,headers} gcc{,-c++} {,c}make just autoconf automake meson ninja bison m4 patch texinfo \
@@ -81,6 +81,10 @@ starship --version
 
 # install minikube
 dnf install -y https://storage.googleapis.com/minikube/releases/latest/minikube-latest.x86_64.rpm
+
+# install winboat
+curl -fsSL https://api.github.com/repos/TibixDev/winboat/releases/latest | jq -r '.assets[].browser_download_url' |
+	grep -Ei '/winboat-[^/]+-x86_64\.rpm$' | head -n1 | xargs dnf install -y
 
 # install veracrypt
 curl -fsSL https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest | jq -r '.assets[].browser_download_url' |
