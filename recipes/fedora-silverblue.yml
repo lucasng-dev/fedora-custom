@@ -1,0 +1,264 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+
+name: fedora-silverblue
+description: Fedora Silverblue (custom build)
+
+base-image: ghcr.io/blue-build/base-images/fedora-silverblue
+image-version: 44
+
+modules:
+  - type: files
+    files:
+      - source: system
+        destination: /
+
+  - type: script
+    scripts:
+      - pre_install.sh
+
+  - type: dnf
+    install:
+      allow-erasing: true
+      packages:
+        # base
+        - "@virtualization"
+        - gnome-boxes
+        - langpacks-en
+        - langpacks-pt
+        - zsh
+        - eza
+        - bat
+        - less
+        - micro
+        - micro-default-editor
+        - nano
+        - vim
+        - neovim
+        - mc
+        - lsb_release
+        - fzf
+        - fd-find
+        - ripgrep
+        - tree
+        - ncdu
+        - tldr
+        - bc
+        - rsync
+        - tmux
+        - screen
+        - btop
+        - htop
+        - nvtop
+        - inxi
+        - lshw
+        - lm_sensors
+        - xclip
+        - xsel
+        - wl-clipboard
+        - expect
+        - openssl
+        - curl
+        - wget
+        - jq
+        - yq
+        - stow
+        - cmatrix
+        - lolcat
+        - fastfetch
+        - onefetch
+        - topgrade
+        - starship
+        - adw-gtk3-theme
+
+        # network
+        - net-tools
+        - iw
+        - telnet
+        - traceroute
+        - bind-utils
+        - mtr
+        - nmap
+        - netcat
+        - tcpdump
+        - wol
+        - nss-tools
+        - whois
+        - iperf3
+        - speedtest-cli
+        - wireguard-tools
+        - firewall-config
+        - sshuttle
+        - samba
+        - tailscale
+
+        # utils
+        - freerdp
+        - binwalk
+        - sqlite
+        - alien
+        - rpmrebuild
+        - cups-pdf
+
+        # file system
+        - gparted
+        - parted
+        - bsdtar
+        - zstd
+        - p7zip
+        - p7zip-plugins
+        - zip
+        - unzip
+        - unrar
+        - unar
+        - squashfs-tools
+        - btrbk
+        - snapper
+        - btrfs-assistant
+        - duperemove
+        - trash-cli
+        - fuse-libs
+        - fuse3-libs
+        - veracrypt
+
+        # fonts
+        - ms-core-fonts
+        - firacode-nerd-fonts
+
+        # containers
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+        - distrobox
+        - podman
+        - podman-compose
+        - kubernetes-client
+        - helm
+
+        # vcs
+        - git
+        - git-credential-manager
+        - git-lfs
+        - git-delta
+        - git-filter-repo
+        - git-extras
+        - gh
+        - lazygit
+
+        # development: base
+        - ShellCheck
+        - shfmt
+        - direnv
+        - mise
+        - gcc
+        - gcc-c++
+        - make
+        - cmake
+        - just
+        - autoconf
+        - automake
+        - meson
+        - ninja
+        - bison
+        - m4
+        - patch
+        - texinfo
+
+        # development: javascript
+        - nodejs
+        - nodejs-npm
+        - yarnpkg
+        - pnpm
+        - deno
+        - bun-bin
+
+        # development: python
+        - python3
+        - python3-pip
+
+        # development: java
+        - java-devel
+
+        # development: dotnet
+        - dotnet-sdk-10.0
+
+        # development: golang
+        - golang
+
+        # development: rust
+        - rust
+        - rustup
+        - rust-src
+        - rustfmt
+        - rust-analyzer
+        - cargo
+        - clippy
+
+        # development: android
+        - android-tools
+
+        # development: ide
+        - code
+        - zed
+        - zed-cli
+
+        # apps
+        - tilix
+        - tilix-nautilus
+        - gnome-tweaks
+        - ffmpegthumbnailer
+        - sushi
+        - dconf-editor
+        - file-roller
+        - file-roller-nautilus
+        - gnome-text-editor
+        - gnome-firmware
+        - syncthing
+        - seahorse
+        - openrgb
+        - steam-devices
+        - rclone
+        - rclone-browser
+        - google-chrome-stable
+        - brave-origin
+        - 1password
+        - 1password-cli
+
+        # onedrive
+        - onedrive
+        - python3-requests
+        - python3-pyside6
+
+        # wifiman
+        - libayatana-appindicator3
+        - webkit2gtk4.1
+    remove:
+      packages:
+        - gnome-software-fedora-langpacks
+        - gnome-terminal
+        - ptyxis
+
+  - type: script
+    scripts:
+      - post_install.sh
+
+  - type: systemd
+    system:
+      enabled:
+        - sshd.service
+        - libvirtd.service
+        - docker.service
+        - docker.socket
+        - podman.socket
+        - podman-restart.service
+        - tailscaled.service
+    user:
+      enabled:
+        - podman.socket
+        - podman-restart.service
+
+  - type: gschema-overrides
+
+  - type: signing
