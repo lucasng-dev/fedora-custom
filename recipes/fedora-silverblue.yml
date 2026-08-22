@@ -259,6 +259,27 @@ modules:
         - podman.socket
         - podman-restart.service
 
+  - type: gnome-extensions
+    install:
+      - 4338 # allowlockedremotedesktop@kamens.us
+      - 4269 # AlphabeticalAppGrid@stuarthayhurst
+      - 615 # appindicatorsupport@rgcjonas.gmail.com
+      - 3193 # blur-my-shell@aunetx
+      - 4679 # burn-my-windows@schneegans.github.com
+      - 3740 # compiz-alike-magic-lamp-effect@hermes83.github.com
+      - 3210 # compiz-windows-effect@hermes83.github.com
+      - 1160 # dash-to-panel@jderose9.github.com
+      - 2087 # ding@rastersoft.com
+      - 7 # drive-menu@gnome-shell-extensions.gcampax.github.com
+      - 5410 # grand-theft-focus@zalckos.github.com
+      - 1218 # printers@linux-man.org
+      - 5964 # quicksettings-audio-devices-hider@marcinjahn.com
+      - 5470 # weatheroclock@CleoMenezesJr.github.io
+
   - type: gschema-overrides
+
+  - type: bling
+    install:
+      - dconf-update-service
 
   - type: signing

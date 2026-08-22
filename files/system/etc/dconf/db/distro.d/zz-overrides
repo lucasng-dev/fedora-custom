@@ -1,0 +1,11 @@
+### keyboard ###
+
+# @see 'files/gschema-overrides/*.gschema.override'
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+binding='<Shift><Control>Escape'
+command='gnome-system-monitor'
+name='System Monitor'
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1]
+binding='<Control><Alt>t'
+command='tilix --focus-window'
+name='Terminal'

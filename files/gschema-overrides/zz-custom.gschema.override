@@ -1,0 +1,95 @@
+### power management ###
+
+[org.gnome.settings-daemon.plugins.power]
+ambient-enabled=false
+power-button-action='interactive'
+sleep-inactive-ac-timeout=7200
+sleep-inactive-ac-type='nothing'
+sleep-inactive-battery-timeout=1800
+sleep-inactive-battery-type='nothing'
+
+
+### keyboard ###
+
+[org.gnome.desktop.peripherals.keyboard]
+numlock-state=true
+
+[org.gnome.desktop.wm.keybindings]
+panel-run-dialog=['<Super>r']
+show-desktop=['<Super>d']
+switch-applications-backward=['<Shift><Super>Tab']
+switch-applications=['<Super>Tab']
+switch-windows-backward=['<Shift><Alt>Tab']
+switch-windows=['<Alt>Tab']
+
+[org.gnome.settings-daemon.plugins.media-keys]
+control-center=['<Super>Pause']
+# @see 'files/system/etc/dconf/db/distro.d/zz-overrides'
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/']
+
+### desktop ###
+
+[org.gnome.desktop.interface]
+clock-show-seconds=true
+clock-show-weekday=true
+color-scheme='prefer-dark'
+enable-hot-corners=false
+gtk-theme='adw-gtk3-dark'
+show-battery-percentage=true
+
+[org.gnome.desktop.sound]
+allow-volume-above-100-percent=true
+
+[org.gnome.desktop.wm.preferences]
+button-layout='appmenu:minimize,maximize,close'
+num-workspaces=1
+
+[org.gnome.mutter]
+center-new-windows=true
+experimental-features=['scale-monitor-framebuffer']
+
+[org.gnome.shell.weather]
+automatic-location=true
+
+[org.gtk.gtk4.Settings.FileChooser]
+sort-directories-first=true
+
+[org.gtk.Settings.FileChooser]
+sort-directories-first=true
+
+
+### extensions ###
+
+[org.gnome.shell]
+enabled-extensions=['allowlockedremotedesktop@kamens.us', 'AlphabeticalAppGrid@stuarthayhurst', 'appindicatorsupport@rgcjonas.gmail.com', 'background-logo@fedorahosted.org', 'blur-my-shell@aunetx', 'burn-my-windows@schneegans.github.com', 'compiz-alike-magic-lamp-effect@hermes83.github.com', 'compiz-windows-effect@hermes83.github.com', 'dash-to-panel@jderose9.github.com', 'ding@rastersoft.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'grand-theft-focus@zalckos.github.com', 'printers@linux-man.org', 'quicksettings-audio-devices-hider@marcinjahn.com', 'weatheroclock@CleoMenezesJr.github.io']
+
+[org.gnome.shell.extensions.burn-my-windows-profile]
+fire-animation-time=600
+
+[org.gnome.shell.extensions.dash-to-panel]
+appicon-margin=0
+appicon-padding=5
+click-action='TOGGLE-SHOWPREVIEW'
+dot-position='TOP'
+dot-style-focused='SEGMENTED'
+dot-style-unfocused='DASHES'
+hide-overview-on-startup=true
+panel-position='TOP'
+panel-size=32
+scroll-icon-action='NOTHING'
+scroll-panel-action='NOTHING'
+show-apps-icon-side-padding=0
+
+[org.gnome.shell.extensions.ding]
+add-volumes-opposite=true
+icon-size='large'
+
+[org.gnome.shell.extensions.com.github.hermes83.compiz-alike-magic-lamp-effect]
+duration=250
+
+[org.gnome.shell.extensions.com.github.hermes83.compiz-windows-effect]
+maximize-effect=true
+resize-effect=true
+
+[org.gnome.shell.extensions.printers]
+show-icon='When printing'
